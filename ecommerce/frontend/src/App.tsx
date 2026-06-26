@@ -168,7 +168,7 @@ export default function App() {
   const theme = createTheme({
     palette: {
       primary: {
-        main: configData?.theme?.primary || '#000000', // Default Black
+        main: '#000000', // Permanently lock UI color to Black
       },
       secondary: {
         main: configData?.theme?.secondary || '#ffffff',
@@ -282,7 +282,6 @@ function MainStorePage({
   }, [activeVisual]);
 
   const orderDetails = localOrderDetails || manualOrderDetails;
-  const retailerName = configData?.theme?.name || 'Retail';
   const isTeenager = configData?.theme?.persona === 'teenager';
 
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
@@ -549,7 +548,7 @@ function MainStorePage({
         zIndex: 100
       }}>
         <Typography variant="h5" sx={{ fontWeight: '900', letterSpacing: '-0.03em' }} color="primary">
-          {retailerName.toUpperCase().endsWith('ASSISTANT') ? retailerName.toUpperCase() : `${retailerName.toUpperCase()} ASSISTANT`}
+          RETAIL ASSISTANT
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Button 
