@@ -3,10 +3,12 @@ import sys
 import json
 import logging
 import subprocess
+import urllib.request
+import urllib.parse
 from fastapi import APIRouter, BackgroundTasks
 from pydantic import BaseModel
 from config import settings
-from services import db
+from services import db, auth_svc
 
 logger = logging.getLogger("ecommerce-routes-admin")
 router = APIRouter()
@@ -109,23 +111,27 @@ async def update_retailer(data: RetailerUpdate, background_tasks: BackgroundTask
             if os.path.exists(log_path):
                  os.remove(log_path)
 
-            # Clear GCS bucket images and memory cache
+            # Clear GCS bucket images and memory cache via REST API
             try:
-                from google.cloud import storage
                 from routes.products import image_cache
                 image_cache.clear()
                 
-                client = storage.Client(project=settings.google_cloud_project or "gen-ai-4all")
-                bucket = client.bucket(settings.gcs_bucket_name)
-                blobs = list(bucket.list_blobs(prefix="products/"))
-                for blob in blobs:
+                token = auth_svc.get_token()
+                list_url = f"https://storage.googleapis.com/storage/v1/b/{settings.gcs_bucket_name}/o?prefix=products/"
+                req = urllib.request.Request(list_url, headers={"Authorization": f"Bearer {token}"})
+                res_data = json.loads(urllib.request.urlopen(req).read().decode('utf-8'))
+                items = res_data.get('items', [])
+                for item in items:
                     try:
-                        blob.delete()
+                        enc_name = urllib.parse.quote(item['name'], safe='')
+                        del_url = f"https://storage.googleapis.com/storage/v1/b/{settings.gcs_bucket_name}/o/{enc_name}"
+                        del_req = urllib.request.Request(del_url, headers={"Authorization": f"Bearer {token}"}, method="DELETE")
+                        urllib.request.urlopen(del_req)
                     except Exception:
                         pass
-                logger.info(f"Deleted {len(blobs)} product images from GCS bucket '{settings.gcs_bucket_name}'.")
+                logger.info(f"Deleted {len(items)} product images from GCS bucket '{settings.gcs_bucket_name}' via REST API.")
             except Exception as gcs_err:
-                logger.warning(f"Failed to delete blobs from GCS: {gcs_err}")
+                logger.warning(f"Failed to delete blobs from GCS via REST API: {gcs_err}")
 
             # Clear local output_images directory
             try:
