@@ -55,6 +55,6 @@ class Settings(BaseModel):
     image_generation_model: str = os.getenv("IMAGE_GENERATION_MODEL", "gemini-3.1-flash-image")
     vqa_model: str = os.getenv("VQA_MODEL", "gemini-3.5-flash")
     spanner_location: str = os.getenv("SPANNER_LOCATION", "us-central1")
-    retailer: str = os.getenv("RETAILER", "Target")
+    retailer: str = os.getenv("RETAILER", "Retrail")
 
 settings = Settings()

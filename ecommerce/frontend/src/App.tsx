@@ -168,7 +168,7 @@ export default function App() {
   const theme = createTheme({
     palette: {
       primary: {
-        main: configData?.theme?.primary || '#cc0000', // Target Red default
+        main: configData?.theme?.primary || '#000000', // Default Black
       },
       secondary: {
         main: configData?.theme?.secondary || '#ffffff',
@@ -282,7 +282,7 @@ function MainStorePage({
   }, [activeVisual]);
 
   const orderDetails = localOrderDetails || manualOrderDetails;
-  const retailerName = configData?.theme?.name || 'Target';
+  const retailerName = configData?.theme?.name || 'Retrail';
   const isTeenager = configData?.theme?.persona === 'teenager';
 
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
@@ -549,7 +549,7 @@ function MainStorePage({
         zIndex: 100
       }}>
         <Typography variant="h5" sx={{ fontWeight: '900', letterSpacing: '-0.03em' }} color="primary">
-          {retailerName.toUpperCase()} ASSISTANT
+          {retailerName.toUpperCase().endsWith('ASSISTANT') ? retailerName.toUpperCase() : `${retailerName.toUpperCase()} ASSISTANT`}
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Button 
@@ -1258,7 +1258,7 @@ function AdminPage({ navigate, themeConfig, progressStatus }: AdminPageProps) {
   }, [themeConfig]);
   const [category, setCategory] = useState('');
   
-  const currentRetailer = themeConfig?.name || 'Target';
+  const currentRetailer = themeConfig?.name || 'Retrail';
 
   // Keep isSubmitting state synchronized with backend status
   useEffect(() => {

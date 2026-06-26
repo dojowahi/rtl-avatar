@@ -23,6 +23,12 @@ logger = logging.getLogger("ecommerce-routes-config")
 router = APIRouter()
 
 RETAILER_THEMES = {
+    "Retrail": {
+        "name": "Retrail",
+        "primary": "#000000",
+        "secondary": "#ffffff",
+        "font": "Inter, sans-serif"
+    },
     "Target": {
         "name": "Target",
         "primary": "#cc0000",
@@ -138,7 +144,7 @@ async def get_config(mode: str = "none"):
         theme = None
 
     if not theme:
-        fallback_retailer = "Target"
+        fallback_retailer = "Retrail"
         theme = fetch_dynamic_brand_theme(fallback_retailer)
         theme["persona"] = "shopper"
         try:
