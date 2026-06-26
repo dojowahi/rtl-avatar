@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import logging
 import asyncio
 from fastapi import APIRouter, HTTPException, Response
@@ -54,6 +55,22 @@ async def get_product_image(product_id: str):
             media_type=media_type,
             headers={"Cache-Control": "public, max-age=2592000, immutable"}
         )
+
+    # 1.5. Check container local disk output_images directory
+    local_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "output_images", f"{product_id}.png")
+    if os.path.exists(local_path):
+        try:
+            with open(local_path, "rb") as f:
+                img_bytes = f.read()
+            image_cache[product_id] = img_bytes
+            media_type = "image/webp" if img_bytes.startswith(b"RIFF") else "image/png"
+            return Response(
+                content=img_bytes, 
+                media_type=media_type,
+                headers={"Cache-Control": "public, max-age=2592000, immutable"}
+            )
+        except Exception as local_err:
+            logger.warning(f"Failed to read local image {local_path}: {local_err}")
 
     try:
         token = auth_svc.get_token()

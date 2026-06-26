@@ -28,6 +28,6 @@ gcloud run deploy cymbal-avatar \
   --service-account genai-592@gen-ai-4all.iam.gserviceaccount.com \
   --impersonate-service-account genai-592@gen-ai-4all.iam.gserviceaccount.com \
   --min-instances 1 \
-  --set-env-vars "GOOGLE_CLOUD_PROJECT=gen-ai-4all,GOOGLE_CLOUD_LOCATION=us-central1,VERTEX_PROJECT_ID=gen-ai-4all,VERTEX_LOCATION=us-central1${ENV_VARS:+,}${ENV_VARS}"
+  --set-env-vars "GOOGLE_CLOUD_PROJECT=gen-ai-4all,GOOGLE_CLOUD_LOCATION=us-central1,VERTEX_PROJECT_ID=gen-ai-4all,VERTEX_LOCATION=global${ENV_VARS:+,}${ENV_VARS}"
 
 echo "🎉 Deployment completed successfully!"
