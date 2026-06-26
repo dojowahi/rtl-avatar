@@ -17,6 +17,7 @@ import logging
 import asyncio
 import websockets
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from config import settings
 from services import auth_svc, VERTEX_PROJECT_ID, VERTEX_LOCATION, GEMINI_LIVE_API_KEY
 
 logger = logging.getLogger("ecommerce-routes-websocket")
@@ -34,7 +35,7 @@ async def live_avatar_proxy(client_ws: WebSocket, path: str = ""):
 
     # 1. Resolve Auth token and Upstream target
     path_str = client_ws.url.path
-    use_vertex = client_ws.query_params.get("vertex") == "true"
+    use_vertex = (client_ws.query_params.get("vertex") == "true") or ("aiplatform" in path_str) or settings.google_genai_use_vertexai
     
     model_location = "us-central1" if VERTEX_LOCATION == "global" else (VERTEX_LOCATION or "us-central1")
 
