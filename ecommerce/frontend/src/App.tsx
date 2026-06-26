@@ -221,6 +221,7 @@ export default function App() {
         <MobileViewPage 
           navigate={navigate} 
           products={defaultProducts} 
+          configData={configData}
         />
       </ThemeProvider>
     );

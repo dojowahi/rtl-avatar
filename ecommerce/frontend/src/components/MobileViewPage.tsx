@@ -16,7 +16,6 @@ import React from 'react';
 import { 
   ArrowBack, 
   Home, 
-  Search, 
   ShoppingCart, 
   Person, 
   Star, 
@@ -24,12 +23,18 @@ import {
   AddShoppingCart,
   Wifi,
   BatteryFull,
-  SignalCellularAlt
+  SignalCellularAlt,
+  GraphicEq,
+  PlayArrow,
+  Stop
 } from '@mui/icons-material';
+import { useGeminiLive } from '../hooks/useGeminiLive';
+import { AvatarDisplay1P } from './AvatarDisplay1P';
 
 interface MobileViewPageProps {
   navigate: (to: string) => void;
   products: any[];
+  configData?: any;
 }
 
 export function MobileViewPage({ navigate, products: initialProducts }: MobileViewPageProps) {
@@ -38,6 +43,8 @@ export function MobileViewPage({ navigate, products: initialProducts }: MobileVi
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
   const [cartCount, setCartCount] = useState<number>(0);
   const [activeBottomTab, setActiveBottomTab] = useState<number>(0);
+  const [sessionId] = useState(`mob_${Math.random().toString(36).substring(2, 9)}`);
+  const { connectionState, connect, disconnect, config } = useGeminiLive('google_1p', sessionId);
 
   useEffect(() => {
     if (products.length === 0) {
@@ -193,62 +200,102 @@ export function MobileViewPage({ navigate, products: initialProducts }: MobileVi
             ))}
           </Box>
 
-          {/* Product Feed Scroll Area */}
-          <Box sx={{ flexGrow: 1, overflowY: 'auto', p: 2, bgcolor: '#f1f5f9', pb: 8 }}>
-            <Typography variant="caption" sx={{ fontWeight: '800', color: '#64748b', mb: 1, display: 'block', textTransform: 'uppercase' }}>
-              Featured Products ({filteredProducts.length})
-            </Typography>
-            
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {filteredProducts.map((prod) => (
-                <Card 
-                  key={prod.product_id}
-                  onClick={() => setSelectedProduct(prod)}
-                  sx={{ 
-                    borderRadius: 3, 
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    overflow: 'hidden',
-                    transition: 'transform 0.2s',
-                    '&:active': { transform: 'scale(0.98)' }
-                  }}
+          {/* Content Area */}
+          {activeBottomTab === 1 ? (
+            <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', p: 3, bgcolor: '#0f172a', color: '#ffffff', alignItems: 'center', justifyContent: 'center', pb: 9 }}>
+              <Box sx={{ width: '100%', maxWidth: 220, aspectRatio: '704/1280', maxHeight: 300, borderRadius: 4, overflow: 'hidden', mb: 3, boxShadow: '0 10px 30px rgba(0,0,0,0.5)', bgcolor: '#1e293b', display: 'flex', justifyContent: 'center' }}>
+                <AvatarDisplay1P 
+                  status={
+                    connectionState === 'connected' ? 'ready' : 
+                    connectionState === 'connecting' ? 'initializing' : 'idle'
+                  } 
+                  useVertexAI={config?.useVertexAI}
+                />
+              </Box>
+              <Typography variant="subtitle1" sx={{ fontWeight: '900', mb: 0.5 }}>
+                Meet Vera AI Assistant
+              </Typography>
+              <Typography variant="caption" sx={{ color: '#94a3b8', textAlign: 'center', mb: 3, px: 1, lineHeight: 1.4 }}>
+                Tap below to talk with your real-time multimodal shopping concierge.
+              </Typography>
+              {connectionState !== 'connected' ? (
+                <Button 
+                  variant="contained" 
+                  startIcon={<PlayArrow />} 
+                  onClick={connect}
+                  sx={{ bgcolor: '#6366f1', borderRadius: '24px', px: 4, py: 1.2, fontWeight: '800', '&:hover': { bgcolor: '#4f46e5' } }}
                 >
-                  <CardMedia
-                    component="img"
-                    sx={{ width: 110, objectFit: 'cover', bgcolor: '#e2e8f0' }}
-                    image={prod.image_url || '/placeholder.png'}
-                    alt={prod.name}
-                  />
-                  <CardContent sx={{ p: 1.5, flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                    <Box>
-                      <Typography variant="subtitle2" sx={{ fontWeight: '800', lineHeight: 1.2, mb: 0.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                        {prod.name}
-                      </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <Star sx={{ fontSize: 14, color: '#f59e0b' }} />
-                        <Typography variant="caption" sx={{ fontWeight: '700', color: '#64748b' }}>
-                          {prod.rating ? prod.rating.toFixed(1) : '4.8'}
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
-                      <Typography variant="subtitle1" sx={{ fontWeight: '900', color: '#000000' }}>
-                        ${prod.price ? Number(prod.price).toFixed(2) : '99.99'}
-                      </Typography>
-                      <IconButton 
-                        size="small" 
-                        onClick={(e) => handleAddToCart(e, prod)}
-                        sx={{ bgcolor: '#000000', color: '#ffffff', '&:hover': { bgcolor: '#333333' } }}
-                      >
-                        <AddShoppingCart sx={{ fontSize: 16 }} />
-                      </IconButton>
-                    </Box>
-                  </CardContent>
-                </Card>
-              ))}
+                  Start Voice Session
+                </Button>
+              ) : (
+                <Button 
+                  variant="contained" 
+                  color="error"
+                  startIcon={<Stop />} 
+                  onClick={disconnect}
+                  sx={{ borderRadius: '24px', px: 4, py: 1.2, fontWeight: '800' }}
+                >
+                  End Voice Session
+                </Button>
+              )}
             </Box>
-          </Box>
+          ) : (
+            <Box sx={{ flexGrow: 1, overflowY: 'auto', p: 2, bgcolor: '#f1f5f9', pb: 8 }}>
+              <Typography variant="caption" sx={{ fontWeight: '800', color: '#64748b', mb: 1, display: 'block', textTransform: 'uppercase' }}>
+                Featured Products ({filteredProducts.length})
+              </Typography>
+              
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {filteredProducts.map((prod) => (
+                  <Card 
+                    key={prod.product_id}
+                    onClick={() => setSelectedProduct(prod)}
+                    sx={{ 
+                      borderRadius: 3, 
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      overflow: 'hidden',
+                      transition: 'transform 0.2s',
+                      '&:active': { transform: 'scale(0.98)' }
+                    }}
+                  >
+                    <CardMedia
+                      component="img"
+                      sx={{ width: 110, objectFit: 'cover', bgcolor: '#e2e8f0' }}
+                      image={prod.image_url || '/placeholder.png'}
+                      alt={prod.name}
+                    />
+                    <CardContent sx={{ p: 1.5, flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                      <Box>
+                        <Typography variant="subtitle2" sx={{ fontWeight: '800', lineHeight: 1.2, mb: 0.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          {prod.name}
+                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <Star sx={{ fontSize: 14, color: '#f59e0b' }} />
+                          <Typography variant="caption" sx={{ fontWeight: '700', color: '#64748b' }}>
+                            {prod.rating ? prod.rating.toFixed(1) : '4.8'}
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: '900', color: '#000000' }}>
+                          ${prod.price ? Number(prod.price).toFixed(2) : '99.99'}
+                        </Typography>
+                        <IconButton 
+                          size="small" 
+                          onClick={(e) => handleAddToCart(e, prod)}
+                          sx={{ bgcolor: '#000000', color: '#ffffff', '&:hover': { bgcolor: '#333333' } }}
+                        >
+                          <AddShoppingCart sx={{ fontSize: 16 }} />
+                        </IconButton>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                ))}
+              </Box>
+            </Box>
+          )}
 
           {/* Bottom App Navigation Bar */}
           <Box sx={{
@@ -268,7 +315,7 @@ export function MobileViewPage({ navigate, products: initialProducts }: MobileVi
           }}>
             {[
               { label: 'Home', icon: <Home /> },
-              { label: 'Search', icon: <Search /> },
+              { label: 'Vera AI', icon: <GraphicEq /> },
               { label: 'Cart', icon: <Badge badgeContent={cartCount} color="primary"><ShoppingCart /></Badge> },
               { label: 'Profile', icon: <Person /> }
             ].map((tab, idx) => (
