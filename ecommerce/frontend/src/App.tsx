@@ -50,7 +50,8 @@ import {
   Schema,
   Add,
   Remove,
-  Delete
+  Delete,
+  PhoneIphone
 } from '@mui/icons-material';
 
 import { useGeminiLive } from './hooks/useGeminiLive';
@@ -58,6 +59,7 @@ import { useCamera } from './hooks/useCamera';
 import { AvatarDisplay1P } from './components/AvatarDisplay1P';
 import { ProductCard } from './components/ProductCard';
 import { ArchitecturePage } from './components/ArchitecturePage';
+import { MobileViewPage } from './components/MobileViewPage';
 import { executeMCPTool } from './api/tools';
 import './App.css';
 
@@ -208,6 +210,17 @@ export default function App() {
         <ArchitecturePage 
           navigate={navigate} 
           themeConfig={configData?.theme} 
+        />
+      </ThemeProvider>
+    );
+  }
+
+  if (currentPath === '/mobile') {
+    return (
+      <ThemeProvider theme={theme}>
+        <MobileViewPage 
+          navigate={navigate} 
+          products={defaultProducts} 
         />
       </ThemeProvider>
     );
@@ -582,6 +595,22 @@ function MainStorePage({
             }}
           >
             Architecture
+          </Button>
+          <Button 
+            variant="outlined" 
+            size="small" 
+            startIcon={<PhoneIphone />} 
+            onClick={() => navigate('/mobile')}
+            color="inherit"
+            sx={{ 
+              borderColor: 'rgba(0,0,0,0.12)', 
+              borderRadius: '20px', 
+              fontSize: '0.8rem',
+              px: 2,
+              '&:hover': { borderColor: 'primary.main', bgcolor: 'rgba(0,0,0,0.02)' } 
+            }}
+          >
+            Mobile View
           </Button>
           <IconButton 
             color="primary" 
