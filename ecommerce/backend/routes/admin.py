@@ -108,6 +108,38 @@ async def update_retailer(data: RetailerUpdate, background_tasks: BackgroundTask
             log_path = os.path.join(scratch_dir, "seeding_run.log")
             if os.path.exists(log_path):
                  os.remove(log_path)
+
+            # Clear GCS bucket images and memory cache
+            try:
+                from google.cloud import storage
+                from routes.products import image_cache
+                image_cache.clear()
+                
+                client = storage.Client(project=settings.google_cloud_project or "gen-ai-4all")
+                bucket = client.bucket(settings.gcs_bucket_name)
+                blobs = list(bucket.list_blobs(prefix="products/"))
+                for blob in blobs:
+                    try:
+                        blob.delete()
+                    except Exception:
+                        pass
+                logger.info(f"Deleted {len(blobs)} product images from GCS bucket '{settings.gcs_bucket_name}'.")
+            except Exception as gcs_err:
+                logger.warning(f"Failed to delete blobs from GCS: {gcs_err}")
+
+            # Clear local output_images directory
+            try:
+                root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                output_dir = os.path.join(root_dir, "output_images")
+                if os.path.exists(output_dir):
+                    for f in os.listdir(output_dir):
+                        if f.endswith(".png") or f.endswith(".webp"):
+                            try:
+                                os.remove(os.path.join(output_dir, f))
+                            except Exception:
+                                pass
+            except Exception as img_err:
+                logger.warning(f"Failed to clear local output_images: {img_err}")
         except Exception as e:
             logger.error(f"Failed to truncate Spanner database: {e}")
             return {"status": "error", "message": f"Failed to truncate database: {str(e)}"}
