@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import logging
 import subprocess
@@ -37,7 +38,7 @@ def run_seeding_task(retailer_name: str, products_count: int, customers_count: i
 
             # Execute generate_data.py and write stdout/stderr directly to file in real-time
             cmd = [
-                "uv", "run", "python", "DataGenerator/generate_data.py", 
+                sys.executable, "DataGenerator/generate_data.py", 
                 "--products", str(products_count), 
                 "--customers", str(customers_count), 
                 "--orders", str(orders_count)
