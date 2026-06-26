@@ -282,7 +282,7 @@ function MainStorePage({
   }, [activeVisual]);
 
   const orderDetails = localOrderDetails || manualOrderDetails;
-  const retailerName = configData?.theme?.name || 'Retrail';
+  const retailerName = configData?.theme?.name || 'Retail';
   const isTeenager = configData?.theme?.persona === 'teenager';
 
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
@@ -1258,7 +1258,7 @@ function AdminPage({ navigate, themeConfig, progressStatus }: AdminPageProps) {
   }, [themeConfig]);
   const [category, setCategory] = useState('');
   
-  const currentRetailer = themeConfig?.name || 'Retrail';
+  const currentRetailer = themeConfig?.name || 'Retail';
 
   // Keep isSubmitting state synchronized with backend status
   useEffect(() => {

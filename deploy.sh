@@ -19,8 +19,8 @@ if [ -f "ecommerce/backend/.env" ]; then
   ENV_VARS=$(grep -v '^#' ecommerce/backend/.env | grep -v '^$' | grep -v 'GOOGLE_CLOUD_PROJECT=' | grep -v 'GOOGLE_CLOUD_LOCATION=' | grep -v 'VERTEX_PROJECT_ID=' | grep -v 'VERTEX_LOCATION=' | tr -d '\r' | paste -s -d "," -)
 fi
 
-echo "🚀 Deploying ecomm-avatar to Cloud Run..."
-gcloud run deploy ecomm-avatar \
+echo "🚀 Deploying cymbal-avatar to Cloud Run..."
+gcloud run deploy cymbal-avatar \
   --source . \
   --region us-central1 \
   --project gen-ai-4all \
