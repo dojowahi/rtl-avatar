@@ -39,6 +39,11 @@ if settings.google_genai_use_vertexai:
         os.environ["GOOGLE_CLOUD_PROJECT"] = VERTEX_PROJECT_ID
     if "GOOGLE_CLOUD_LOCATION" not in os.environ:
         os.environ["GOOGLE_CLOUD_LOCATION"] = VERTEX_LOCATION
-    ai_client = genai.Client(vertexai=True, project=VERTEX_PROJECT_ID, location=VERTEX_LOCATION)
-else:
-    ai_client = genai.Client(vertexai=False, api_key=GEMINI_LIVE_API_KEY)
+
+def get_ai_client():
+    if settings.google_genai_use_vertexai:
+        return genai.Client(vertexai=True, project=VERTEX_PROJECT_ID, location=VERTEX_LOCATION)
+    else:
+        return genai.Client(vertexai=False, api_key=GEMINI_LIVE_API_KEY)
+
+ai_client = get_ai_client()

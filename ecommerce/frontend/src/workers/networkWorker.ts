@@ -68,7 +68,7 @@ const buildLiveConnectConfig = (payload: {
         return {
             ...baseConfig,
             speechConfig,
-            responseModalities: [Modality.VIDEO],
+            responseModalities: [Modality.AUDIO],
             outputAudioTranscription: {},
             inputAudioTranscription: {},
             avatarConfig: {
@@ -189,15 +189,6 @@ self.onmessage = async (event) => {
                         response: respObj
                     }] 
                 });
-
-                // Gemini 3.x Inference Kickstart:
-                setTimeout(() => {
-                    if (session) {
-                        session.sendRealtimeInput({ 
-                            text: " "
-                        });
-                    }
-                }, 200);
             }
             break;
 
