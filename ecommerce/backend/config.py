@@ -43,9 +43,9 @@ load_dotenv()
 class Settings(BaseModel):
     google_genai_use_vertexai: bool = os.getenv("GOOGLE_GENAI_USE_VERTEXAI", "true").lower() == "true"
     vertex_project_id: str = os.getenv("VERTEX_PROJECT_ID", "")
-    vertex_location: str = os.getenv("VERTEX_LOCATION", "us-central1")
+    vertex_location: str = os.getenv("VERTEX_LOCATION", "global")
     google_cloud_project: str = os.getenv("GOOGLE_CLOUD_PROJECT", "")
-    google_cloud_location: str = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
+    google_cloud_location: str = os.getenv("GOOGLE_CLOUD_LOCATION", "global")
     spanner_instance: str = os.getenv("SPANNER_INSTANCE", "ecommerce-instance")
     spanner_database: str = os.getenv("SPANNER_DATABASE", "catalog-db")
     gemini_live_api_key: str = os.getenv("GEMINI_LIVE_API_KEY", "")

@@ -37,10 +37,11 @@ async def live_avatar_proxy(client_ws: WebSocket, path: str = ""):
     path_str = client_ws.url.path
     use_vertex = (client_ws.query_params.get("vertex") == "true") or ("aiplatform" in path_str) or settings.google_genai_use_vertexai
     
-    model_location = "us-central1" if VERTEX_LOCATION == "global" else (VERTEX_LOCATION or "us-central1")
+    model_location = VERTEX_LOCATION or "global"
 
     if use_vertex:
-        target_url = f"wss://{model_location}-aiplatform.googleapis.com/ws/google.cloud.aiplatform.v1beta1.LlmBidiService/BidiGenerateContent"
+        host = f"{model_location}-aiplatform.googleapis.com" if model_location != "global" else "aiplatform.googleapis.com"
+        target_url = f"wss://{host}/ws/google.cloud.aiplatform.v1beta1.LlmBidiService/BidiGenerateContent"
         token = auth_svc.get_token()
         target_url += f"?access_token={token}"
     else:

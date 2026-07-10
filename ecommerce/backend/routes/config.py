@@ -133,8 +133,7 @@ async def get_config(mode: str = "google_1p", avatar: str = "Vera"):
     # Hide standard API key if using Vertex AI mode (authenticated via dynamic backend OAuth proxy)
     api_key_to_return = "" if use_vertex_live else GEMINI_LIVE_API_KEY
     
-    # Map global location to a valid region for the live API client
-    location_to_return = "us-central1" if VERTEX_LOCATION == "global" else (VERTEX_LOCATION or "us-central1")
+    location_to_return = VERTEX_LOCATION or "global"
     
     # Resolve branding theme config dynamically with Spanner persistence
     try:
