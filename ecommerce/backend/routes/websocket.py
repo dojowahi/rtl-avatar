@@ -82,24 +82,20 @@ async def live_avatar_proxy(client_ws: WebSocket, path: str = ""):
                                         qualified_model = f"projects/{VERTEX_PROJECT_ID}/locations/{model_location}/publishers/google/models/{model_name_only}"
                                         setup_cfg["model"] = qualified_model
                                     
-                                    # Ensure VIDEO response modality & dual-case avatar config
-                                    avatar_obj = setup_cfg.get("avatarConfig") or setup_cfg.get("avatar_config")
+                                    # Ensure single snake_case field for avatar_config to avoid oneof collision
+                                    avatar_obj = setup_cfg.pop("avatarConfig", None) or setup_cfg.get("avatar_config")
                                     if avatar_obj:
                                         avatar_name = (
                                             avatar_obj.get("avatarName")
                                             or avatar_obj.get("avatar_name")
                                             or "Vera"
                                         )
-                                        dual_avatar = {
-                                            "avatarName": avatar_name,
-                                            "avatar_name": avatar_name
-                                        }
-                                        setup_cfg["avatarConfig"] = dual_avatar
-                                        setup_cfg["avatar_config"] = dual_avatar
+                                        setup_cfg["avatar_config"] = {"avatar_name": avatar_name}
                                         
-                                        gen_cfg = setup_cfg.setdefault("generationConfig", {})
-                                        gen_cfg["responseModalities"] = ["VIDEO"]
+                                        gen_cfg = setup_cfg.pop("generationConfig", None) or setup_cfg.get("generation_config", {})
+                                        gen_cfg.pop("responseModalities", None)
                                         gen_cfg["response_modalities"] = ["VIDEO"]
+                                        setup_cfg["generation_config"] = gen_cfg
                                     
                                     message = json.dumps(data)
                                     logger.info(f"QUALIFIED UPSTREAM SETUP: {message}")
