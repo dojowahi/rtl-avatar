@@ -22,6 +22,14 @@ export const AvatarDisplay1P = memo(({ status, useVertexAI = true }: AvatarDispl
   const customLoaderRef = useRef<MpegtsCustomLoader | null>(null);
   const receivedBytesRef = useRef<number>(0);
   const [hasFirstFrame, setHasFirstFrame] = useState(false);
+  const [frameUrl, setFrameUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (status !== 'ready') {
+      setHasFirstFrame(false);
+      setFrameUrl(null);
+    }
+  }, [status]);
 
   useEffect(() => {
     if (!useVertexAI || !videoRef.current) return;
@@ -51,6 +59,12 @@ export const AvatarDisplay1P = memo(({ status, useVertexAI = true }: AvatarDispl
       if (!base64Data) return;
 
       try {
+        if (base64Data.startsWith('/9j/') || base64Data.startsWith('iVBORw')) {
+          setFrameUrl(`data:image/jpeg;base64,${base64Data}`);
+          setHasFirstFrame(true);
+          return;
+        }
+
         const binaryString = atob(base64Data);
         const uint8Array = new Uint8Array(binaryString.length);
         for (let i = 0; i < binaryString.length; i++) {
@@ -85,6 +99,7 @@ export const AvatarDisplay1P = memo(({ status, useVertexAI = true }: AvatarDispl
       }
     };
   }, [status, useVertexAI]);
+
 
   useEffect(() => {
     if (!useVertexAI) return;
@@ -168,6 +183,18 @@ export const AvatarDisplay1P = memo(({ status, useVertexAI = true }: AvatarDispl
             Vera is listening...
           </Typography>
         </Box>
+      ) : frameUrl ? (
+        <Box
+          component="img"
+          src={frameUrl}
+          alt="Speaking Avatar"
+          sx={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            display: 'block'
+          }}
+        />
       ) : (
         <video
           ref={videoRef}

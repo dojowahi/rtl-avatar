@@ -68,7 +68,7 @@ const buildLiveConnectConfig = (payload: {
         return {
             ...baseConfig,
             speechConfig,
-            responseModalities: [Modality.AUDIO],
+            responseModalities: ["VIDEO" as unknown as Modality],
             outputAudioTranscription: {},
             inputAudioTranscription: {},
             avatarConfig: {
@@ -257,7 +257,7 @@ const handleMessage = (msg: LiveServerMessage) => {
                         buffer: floatData.buffer
                     } 
                 }, [floatData.buffer]);
-            } else if (mimeType.startsWith('video/') || mimeType === '') {
+            } else if (mimeType.startsWith('video/') || mimeType.startsWith('image/') || mimeType === '') {
                 workerPostMessage({ 
                     type: 'VIDEO_DATA', 
                     payload: base64Data

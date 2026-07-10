@@ -65,20 +65,28 @@ async def live_avatar_proxy(client_ws: WebSocket, path: str = ""):
                         if use_vertex and not is_setup_done:
                             try:
                                 data = json.loads(message)
-                                if "setup" in data and "model" in data["setup"]:
-                                    raw_model = data["setup"]["model"]
-                                    
-                                    # Extract core model name
-                                    model_name_only = raw_model
-                                    if "publishers/google/models/" in model_name_only:
-                                        model_name_only = model_name_only.split("publishers/google/models/")[-1]
-                                    elif "models/" in model_name_only:
-                                        model_name_only = model_name_only.split("models/")[-1]
+                                if "setup" in data:
+                                    setup_cfg = data["setup"]
+                                    if "model" in setup_cfg:
+                                        raw_model = setup_cfg["model"]
                                         
-                                    qualified_model = f"projects/{VERTEX_PROJECT_ID}/locations/{model_location}/publishers/google/models/{model_name_only}"
-                                    data["setup"]["model"] = qualified_model
+                                        # Extract core model name
+                                        model_name_only = raw_model
+                                        if "publishers/google/models/" in model_name_only:
+                                            model_name_only = model_name_only.split("publishers/google/models/")[-1]
+                                        elif "models/" in model_name_only:
+                                            model_name_only = model_name_only.split("models/")[-1]
+                                            
+                                        qualified_model = f"projects/{VERTEX_PROJECT_ID}/locations/{model_location}/publishers/google/models/{model_name_only}"
+                                        setup_cfg["model"] = qualified_model
+                                    
+                                    # Ensure VIDEO response modality when avatarConfig is present
+                                    if "avatarConfig" in setup_cfg or "avatar_config" in setup_cfg:
+                                        gen_cfg = setup_cfg.setdefault("generationConfig", {})
+                                        gen_cfg["responseModalities"] = ["VIDEO"]
+                                    
                                     message = json.dumps(data)
-                                    logger.info(f"Qualified model path in proxy: {qualified_model}")
+                                    logger.info(f"Updated setup in proxy for model: {setup_cfg.get('model')}")
                                     is_setup_done = True
                             except Exception as parse_err:
                                 logger.warning(f"Failed to inspect setup model path: {parse_err}")

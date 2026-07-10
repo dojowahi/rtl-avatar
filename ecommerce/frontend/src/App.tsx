@@ -34,7 +34,9 @@ import {
   Dialog,
   DialogContent,
   DialogActions,
-  Rating
+  Rating,
+  Select,
+  MenuItem
 } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { 
@@ -270,6 +272,7 @@ function MainStorePage({
   const [textInput, setTextInput] = useState('');
   const [sessionId] = useState(`sess_${Math.random().toString(36).substring(2, 9)}`);
 
+  const [selectedAvatar, setSelectedAvatar] = useState('Vera');
   const {
     connectionState,
     isRecording,
@@ -282,7 +285,7 @@ function MainStorePage({
     sendTextMessage,
     sendVideoFrame,
     config
-  } = useGeminiLive('google_1p', sessionId);
+  } = useGeminiLive('google_1p', sessionId, selectedAvatar);
 
   const [localCart, setLocalCart] = useState<any[]>([]);
   const [manualOverlay, setManualOverlay] = useState<'cart' | 'checkout' | 'products' | null>(null);
@@ -646,7 +649,7 @@ function MainStorePage({
             }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                 <Typography variant="subtitle2" sx={{ fontWeight: '800', display: 'flex', alignItems: 'center', gap: 1 }}>
-                  {isTeenager ? 'Assistant Vera (Whatever...)' : 'Assistant Vera (Live)'}
+                  {isTeenager ? `Assistant ${selectedAvatar} (Whatever...)` : `Assistant ${selectedAvatar} (Live)`}
                   {connectionState === 'connected' && (
                     <Box sx={{ 
                       width: 8, 
@@ -657,6 +660,25 @@ function MainStorePage({
                     }} />
                   )}
                 </Typography>
+                <Select
+                  size="small"
+                  value={selectedAvatar}
+                  disabled={connectionState !== 'disconnected'}
+                  onChange={(e) => setSelectedAvatar(e.target.value)}
+                  sx={{ height: 28, fontSize: '0.75rem', fontWeight: 700, borderRadius: 2 }}
+                >
+                  <MenuItem value="Vera">Vera (Realistic)</MenuItem>
+                  <MenuItem value="Kira">Kira (Realistic)</MenuItem>
+                  <MenuItem value="Ingrid">Ingrid (Realistic)</MenuItem>
+                  <MenuItem value="Sam">Sam (Realistic)</MenuItem>
+                  <MenuItem value="Jay">Jay (Realistic)</MenuItem>
+                  <MenuItem value="Paul">Paul (Realistic)</MenuItem>
+                  <MenuItem value="Ben">Ben (Stylized)</MenuItem>
+                  <MenuItem value="Kai">Kai (Stylized)</MenuItem>
+                  <MenuItem value="Carmen">Carmen (Stylized)</MenuItem>
+                  <MenuItem value="Leo">Leo (Stylized)</MenuItem>
+                  <MenuItem value="Piper">Piper (Stylized)</MenuItem>
+                </Select>
               </Box>
 
               <Box sx={{ 

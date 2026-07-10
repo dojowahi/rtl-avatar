@@ -11,7 +11,7 @@ export interface Message {
   id: string;
 }
 
-export function useGeminiLive(mode: 'none' | 'google_1p' = 'none', sessionId?: string) {
+export function useGeminiLive(mode: 'none' | 'google_1p' = 'none', sessionId?: string, avatar: string = 'Vera') {
   const [connectionState, setConnectionState] = useState<'connected' | 'disconnected' | 'error' | 'connecting'>('disconnected');
   const [messages, setMessages] = useState<Message[]>([]);
   const [isThinking, setIsThinking] = useState(false);
@@ -71,8 +71,9 @@ export function useGeminiLive(mode: 'none' | 'google_1p' = 'none', sessionId?: s
 
     try {
       // 1. Fetch dynamic config
-      const res = await fetch(`/api/config?mode=${mode}`);
+      const res = await fetch(`/api/config?mode=${mode}&avatar=${encodeURIComponent(avatar)}`);
       const config = await res.json();
+
       configRef.current = config;
 
       // 2. Fetch allowed tools
@@ -140,7 +141,7 @@ export function useGeminiLive(mode: 'none' | 'google_1p' = 'none', sessionId?: s
       console.error('Failed to start Live session:', e);
       setConnectionState('error');
     }
-  }, [mode, connectionState, resumeAudioContext, playAudioChunk, stopAudioPlayback, startRecording, stopRecording, handleToolCall, appendOrUpdateMessage]);
+  }, [mode, avatar, connectionState, resumeAudioContext, playAudioChunk, stopAudioPlayback, startRecording, stopRecording, handleToolCall, appendOrUpdateMessage]);
 
   const disconnect = useCallback(() => {
     if (apiRef.current) {

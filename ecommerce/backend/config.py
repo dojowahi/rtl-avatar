@@ -49,7 +49,7 @@ class Settings(BaseModel):
     spanner_instance: str = os.getenv("SPANNER_INSTANCE", "ecommerce-instance")
     spanner_database: str = os.getenv("SPANNER_DATABASE", "catalog-db")
     gemini_live_api_key: str = os.getenv("GEMINI_LIVE_API_KEY", "")
-    gemini_live_model: str = os.getenv("GEMINI_LIVE_MODEL", "gemini-3.1-flash-live-preview")
+    gemini_live_model: str = os.getenv("GEMINI_LIVE_MODEL", "gemini-3.1-flash-live-preview-04-2026")
     multimodal_embedding_model: str = os.getenv("MULTIMODAL_EMBEDDING_MODEL", "gemini-embedding-2")
     gcs_bucket_name: str = os.getenv("GCS_BUCKET_NAME", "gen-ai-4all-live-retail-images")
     image_generation_model: str = os.getenv("IMAGE_GENERATION_MODEL", "gemini-2.5-flash-image")

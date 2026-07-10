@@ -122,7 +122,7 @@ SYSTEM_PROMPTS = {
 
 
 @router.get("/api/config")
-async def get_config(mode: str = "none"):
+async def get_config(mode: str = "google_1p", avatar: str = "Vera"):
     """
     Returns bootstrapped connection parameters and configurations for the e-commerce session.
     """
@@ -155,6 +155,9 @@ async def get_config(mode: str = "none"):
     persona = theme.get("persona", "shopper") if theme else "shopper"
     system_prompt = SYSTEM_PROMPTS.get(persona, SYSTEM_PROMPTS["shopper"])
     
+    valid_avatars = {"Vera", "Kira", "Ingrid", "Sam", "Jay", "Paul", "Ben", "Kai", "Carmen", "Leo", "Piper"}
+    avatar_to_use = avatar if avatar in valid_avatars else "Vera"
+
     return {
         "apiKey": api_key_to_return,
         "modelName": model_name,
@@ -163,8 +166,9 @@ async def get_config(mode: str = "none"):
         "vertexProjectID": VERTEX_PROJECT_ID,
         "vertexLocation": location_to_return,
         "avatarMode": mode,
-        "google1PAvatarName": "Vera" if mode == "google_1p" else "none",
+        "google1PAvatarName": avatar_to_use if mode == "google_1p" else "none",
         "google1PVoiceName": "Aoede",
         "vadSilenceDurationMs": 400,
         "theme": theme
     }
+
