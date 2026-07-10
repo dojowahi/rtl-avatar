@@ -81,10 +81,24 @@ async def live_avatar_proxy(client_ws: WebSocket, path: str = ""):
                                         qualified_model = f"projects/{VERTEX_PROJECT_ID}/locations/{model_location}/publishers/google/models/{model_name_only}"
                                         setup_cfg["model"] = qualified_model
                                     
-                                    # Ensure VIDEO response modality when avatarConfig is present
-                                    if "avatarConfig" in setup_cfg or "avatar_config" in setup_cfg:
+                                    # Ensure VIDEO response modality & dual-case avatar config
+                                    avatar_obj = setup_cfg.get("avatarConfig") or setup_cfg.get("avatar_config")
+                                    if avatar_obj:
+                                        avatar_name = (
+                                            avatar_obj.get("avatarName")
+                                            or avatar_obj.get("avatar_name")
+                                            or "Vera"
+                                        )
+                                        dual_avatar = {
+                                            "avatarName": avatar_name,
+                                            "avatar_name": avatar_name
+                                        }
+                                        setup_cfg["avatarConfig"] = dual_avatar
+                                        setup_cfg["avatar_config"] = dual_avatar
+                                        
                                         gen_cfg = setup_cfg.setdefault("generationConfig", {})
                                         gen_cfg["responseModalities"] = ["VIDEO"]
+                                        gen_cfg["response_modalities"] = ["VIDEO"]
                                     
                                     message = json.dumps(data)
                                     logger.info(f"QUALIFIED UPSTREAM SETUP: {message}")
@@ -101,6 +115,21 @@ async def live_avatar_proxy(client_ws: WebSocket, path: str = ""):
             async def upstream_to_client():
                 try:
                     async for message in upstream_ws:
+                        try:
+                            msg_obj = json.loads(message)
+                            if "serverContent" in msg_obj:
+                                sc = msg_obj["serverContent"]
+                                parts = sc.get("modelTurn", {}).get("parts", [])
+                                p_summary = []
+                                for p in parts:
+                                    if "inlineData" in p:
+                                        p_summary.append(f"inlineData({p['inlineData'].get('mimeType')}, len={len(p['inlineData'].get('data', ''))})")
+                                    elif "text" in p:
+                                        p_summary.append(f"text({p['text'][:50]})")
+                                if p_summary:
+                                    logger.info(f"UPSTREAM SERVER CONTENT PARTS: {p_summary}")
+                        except Exception:
+                            pass
                         # Forward upstream messages directly to browser client
                         await client_ws.send_text(message)
                 except Exception as e:

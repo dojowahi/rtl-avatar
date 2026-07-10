@@ -239,20 +239,24 @@ const handleMessage = (msg: LiveServerMessage) => {
         });
       }
 
-      if (msg.serverContent?.modelTurn?.parts) {
+      const serverContent = msg.serverContent || (msg as any).server_content;
+      const modelTurn = serverContent?.modelTurn || (serverContent as any)?.model_turn;
+
+      if (modelTurn?.parts) {
         if (!isInterruptedInThisMessage) {
-            const hasNewTurnIndicator = msg.serverContent.modelTurn.parts.some(p => p.text || p.functionCall);
+            const hasNewTurnIndicator = modelTurn.parts.some((p: any) => p.text || p.functionCall || p.function_call);
             if (hasNewTurnIndicator) {
                 isIgnoringTrailingChunks = false;
             }
         }
 
-        msg.serverContent.modelTurn.parts.forEach((part) => {
-          if (part.inlineData?.data) {
+        modelTurn.parts.forEach((part: any) => {
+          const inlineData = part.inlineData || part.inline_data;
+          if (inlineData?.data) {
             if (isIgnoringTrailingChunks) return;
 
-            const base64Data = part.inlineData.data;
-            const mimeType = part.inlineData.mimeType || '';
+            const base64Data = inlineData.data;
+            const mimeType = inlineData.mimeType || inlineData.mime_type || '';
 
             if (mimeType.startsWith('audio/')) {
                 const binaryString = atob(base64Data);
@@ -289,15 +293,17 @@ const handleMessage = (msg: LiveServerMessage) => {
                   }
               });
           }
-          if (part.functionCall) {
+          const functionCall = part.functionCall || part.function_call;
+          if (functionCall) {
             processToolCall(
-                part.functionCall.name || '', 
-                (part.functionCall.args as Record<string, unknown>) || {}, 
-                part.functionCall.id || ''
+                functionCall.name || '', 
+                (functionCall.args as Record<string, unknown>) || {}, 
+                functionCall.id || ''
             );
           }
         });
       }
+
 
       if (msg.toolCall?.functionCalls) {
         msg.toolCall.functionCalls.forEach((call) => {
