@@ -12,6 +12,7 @@ let session: Session | null = null;
 let modelName = '';
 let isIgnoringTrailingChunks = false;
 let hasLoggedFirstAudioChunk = false;
+let isSetupComplete = false;
 const processedToolCallIds = new Set<string>();
 
 const workerPostMessage = (self as unknown as Worker).postMessage.bind(self);
@@ -68,7 +69,7 @@ const buildLiveConnectConfig = (payload: {
         return {
             ...baseConfig,
             speechConfig,
-            responseModalities: ["VIDEO" as unknown as Modality],
+            responseModalities: [Modality.AUDIO, "VIDEO" as unknown as Modality],
             outputAudioTranscription: {},
             inputAudioTranscription: {},
             avatarConfig: {
@@ -95,6 +96,7 @@ self.onmessage = async (event) => {
                 modelName = payload.modelName;
                 isIgnoringTrailingChunks = false;
                 hasLoggedFirstAudioChunk = false;
+                isSetupComplete = false;
 
                 const aiConfig: GoogleGenAIOptions = {
                     apiKey: payload.useVertexAI ? 'proxy' : (payload.apiKey || 'dummy'),
@@ -126,6 +128,7 @@ self.onmessage = async (event) => {
                         },
                         onclose: (event: CloseEvent) => {
                             console.log(`[NetworkWorker] Socket closed. Code: ${event?.code}, Reason: ${event?.reason}`);
+                            isSetupComplete = false;
                             workerPostMessage({ type: 'STATE_CHANGE', payload: 'disconnected', code: event?.code, reason: event?.reason });
                         },
                         onmessage: (msg: LiveServerMessage) => handleMessage(msg),
@@ -137,7 +140,13 @@ self.onmessage = async (event) => {
                 };
 
                 session = await ai.live.connect(connectParams);
-                workerPostMessage({ type: 'STATE_CHANGE', payload: 'connected' });
+                setTimeout(() => {
+                    if (!isSetupComplete && session) {
+                        console.log('[NetworkWorker] Fallback 1500ms timer marked setup complete');
+                        isSetupComplete = true;
+                        workerPostMessage({ type: 'STATE_CHANGE', payload: 'connected' });
+                    }
+                }, 1500);
             } catch (err: unknown) {
                 console.error('[NetworkWorker] Connection failed:', err);
                 workerPostMessage({ type: 'STATE_CHANGE', payload: 'error', error: err instanceof Error ? err.message : String(err) });
@@ -145,7 +154,7 @@ self.onmessage = async (event) => {
             break;
 
         case 'SEND_AUDIO':
-            if (session) {
+            if (session && isSetupComplete) {
                 if (!hasLoggedFirstAudioChunk) {
                     console.log('[NetworkWorker] Forwarding first audio chunk to Gemini');
                     hasLoggedFirstAudioChunk = true;
@@ -160,7 +169,7 @@ self.onmessage = async (event) => {
             break;
 
         case 'SEND_VIDEO':
-            if (session) {
+            if (session && isSetupComplete) {
                 session.sendRealtimeInput({
                     video: {
                         data: payload.data,
@@ -172,12 +181,13 @@ self.onmessage = async (event) => {
 
 
         case 'SEND_TEXT':
-            if (session) {
+            if (session && isSetupComplete) {
                 session.sendRealtimeInput({ 
                     text: payload
                 });
             }
             break;
+
 
         case 'TOOL_RESPONSE':
             if (session) {
@@ -204,6 +214,12 @@ self.onmessage = async (event) => {
 
 const handleMessage = (msg: LiveServerMessage) => {
     try {
+      if (msg.setupComplete) {
+        console.log('[NetworkWorker] Setup complete received from Live API');
+        isSetupComplete = true;
+        workerPostMessage({ type: 'STATE_CHANGE', payload: 'connected' });
+      }
+
       let isInterruptedInThisMessage = false;
       if (msg.serverContent?.interrupted) {
         isIgnoringTrailingChunks = true;

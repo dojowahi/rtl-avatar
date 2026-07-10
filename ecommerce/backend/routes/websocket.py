@@ -66,6 +66,7 @@ async def live_avatar_proxy(client_ws: WebSocket, path: str = ""):
                             try:
                                 data = json.loads(message)
                                 if "setup" in data:
+                                    logger.info(f"RAW CLIENT SETUP: {json.dumps(data)}")
                                     setup_cfg = data["setup"]
                                     if "model" in setup_cfg:
                                         raw_model = setup_cfg["model"]
@@ -80,13 +81,13 @@ async def live_avatar_proxy(client_ws: WebSocket, path: str = ""):
                                         qualified_model = f"projects/{VERTEX_PROJECT_ID}/locations/{model_location}/publishers/google/models/{model_name_only}"
                                         setup_cfg["model"] = qualified_model
                                     
-                                    # Ensure VIDEO response modality when avatarConfig is present
+                                    # Ensure both AUDIO and VIDEO response modalities when avatarConfig is present
                                     if "avatarConfig" in setup_cfg or "avatar_config" in setup_cfg:
                                         gen_cfg = setup_cfg.setdefault("generationConfig", {})
-                                        gen_cfg["responseModalities"] = ["VIDEO"]
+                                        gen_cfg["responseModalities"] = ["AUDIO", "VIDEO"]
                                     
                                     message = json.dumps(data)
-                                    logger.info(f"Updated setup in proxy for model: {setup_cfg.get('model')}")
+                                    logger.info(f"QUALIFIED UPSTREAM SETUP: {message}")
                                     is_setup_done = True
                             except Exception as parse_err:
                                 logger.warning(f"Failed to inspect setup model path: {parse_err}")
