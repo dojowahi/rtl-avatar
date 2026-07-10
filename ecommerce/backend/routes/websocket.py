@@ -81,10 +81,10 @@ async def live_avatar_proxy(client_ws: WebSocket, path: str = ""):
                                         qualified_model = f"projects/{VERTEX_PROJECT_ID}/locations/{model_location}/publishers/google/models/{model_name_only}"
                                         setup_cfg["model"] = qualified_model
                                     
-                                    # Ensure both AUDIO and VIDEO response modalities when avatarConfig is present
+                                    # Ensure VIDEO response modality when avatarConfig is present
                                     if "avatarConfig" in setup_cfg or "avatar_config" in setup_cfg:
                                         gen_cfg = setup_cfg.setdefault("generationConfig", {})
-                                        gen_cfg["responseModalities"] = ["AUDIO", "VIDEO"]
+                                        gen_cfg["responseModalities"] = ["VIDEO"]
                                     
                                     message = json.dumps(data)
                                     logger.info(f"QUALIFIED UPSTREAM SETUP: {message}")
