@@ -18,7 +18,7 @@ import asyncio
 import websockets
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from config import settings
-from services import auth_svc, VERTEX_PROJECT_ID, VERTEX_LOCATION, GEMINI_LIVE_API_KEY
+from services import auth_svc, VERTEX_PROJECT_ID, VERTEX_LOCATION
 
 logger = logging.getLogger("ecommerce-routes-websocket")
 router = APIRouter()
@@ -33,21 +33,13 @@ async def live_avatar_proxy(client_ws: WebSocket, path: str = ""):
     await client_ws.accept()
     logger.info(f"Client WebSocket connection upgraded for path: {path}")
 
-    # 1. Resolve Auth token and Upstream target
-    path_str = client_ws.url.path
-    use_vertex = (client_ws.query_params.get("vertex") == "true") or ("aiplatform" in path_str) or settings.google_genai_use_vertexai
-    
+    # 1. Resolve Auth token and Upstream target for Cloud / Vertex AI
+    use_vertex = True
     model_location = VERTEX_LOCATION or "global"
-
-    if use_vertex:
-        host = f"{model_location}-aiplatform.googleapis.com" if model_location != "global" else "aiplatform.googleapis.com"
-        target_url = f"wss://{host}/ws/google.cloud.aiplatform.v1beta1.LlmBidiService/BidiGenerateContent"
-        token = auth_svc.get_token()
-        target_url += f"?access_token={token}"
-    else:
-        target_url = "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService/BidiGenerateContent"
-        if GEMINI_LIVE_API_KEY:
-            target_url += f"?key={GEMINI_LIVE_API_KEY}"
+    host = f"{model_location}-aiplatform.googleapis.com" if model_location != "global" else "aiplatform.googleapis.com"
+    target_url = f"wss://{host}/ws/google.cloud.aiplatform.v1beta1.LlmBidiService/BidiGenerateContent"
+    token = auth_svc.get_token()
+    target_url += f"?access_token={token}"
 
     try:
         # 2. Establish connection to Google upstream
@@ -92,9 +84,24 @@ async def live_avatar_proxy(client_ws: WebSocket, path: str = ""):
                                         )
                                         setup_cfg["avatar_config"] = {"avatar_name": avatar_name}
                                         
+                                        avatar_voices = {
+                                            "Vera": "Aoede", "Kira": "Kore", "Ingrid": "Aoede",
+                                            "Sam": "Charon", "Jay": "Fenrir", "Paul": "Puck",
+                                            "Ben": "Charon", "Kai": "Fenrir", "Carmen": "Kore",
+                                            "Leo": "Puck", "Piper": "Aoede"
+                                        }
+                                        voice_name = avatar_voices.get(avatar_name, "Aoede")
+
                                         gen_cfg = setup_cfg.pop("generationConfig", None) or setup_cfg.get("generation_config", {})
                                         gen_cfg.pop("responseModalities", None)
                                         gen_cfg["response_modalities"] = ["VIDEO"]
+                                        
+                                        speech_cfg = gen_cfg.pop("speechConfig", None) or gen_cfg.get("speech_config", {})
+                                        speech_cfg["voice_config"] = {"prebuilt_voice_config": {"voice_name": voice_name}}
+                                        gen_cfg["speech_config"] = speech_cfg
+                                        setup_cfg.pop("speechConfig", None)
+                                        setup_cfg.pop("speech_config", None)
+                                        
                                         setup_cfg["generation_config"] = gen_cfg
                                     
                                     message = json.dumps(data)

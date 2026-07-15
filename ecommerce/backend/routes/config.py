@@ -16,7 +16,7 @@ import os
 import logging
 from fastapi import APIRouter
 import json
-from services import VERTEX_PROJECT_ID, VERTEX_LOCATION, GEMINI_LIVE_API_KEY, GEMINI_LIVE_MODEL, ai_client, db
+from services import VERTEX_PROJECT_ID, VERTEX_LOCATION, GEMINI_LIVE_MODEL, ai_client, db
 from config import settings
 
 logger = logging.getLogger("ecommerce-routes-config")
@@ -54,9 +54,6 @@ def fetch_dynamic_brand_theme(retailer: str) -> dict:
         return RETAILER_THEMES[retailer]
     
     try:
-        from google import genai
-        theme_client = genai.Client(vertexai=False, api_key=settings.gemini_live_api_key)
-
         prompt = (
             f"Analyze the brand colors and typography style of the retailer '{retailer}'. "
             f"Suggest a matching color palette and typography font. "
@@ -66,7 +63,7 @@ def fetch_dynamic_brand_theme(retailer: str) -> dict:
             f"- 'font': Web font family string (e.g. 'Roboto, sans-serif')\n"
             f"Output raw JSON only, no markdown."
         )
-        response = theme_client.models.generate_content(
+        response = ai_client.models.generate_content(
             model="gemini-3.5-flash",
             contents=prompt
         )
@@ -126,13 +123,8 @@ async def get_config(mode: str = "google_1p", avatar: str = "Vera"):
     """
     Returns bootstrapped connection parameters and configurations for the e-commerce session.
     """
-    use_vertex_live = settings.google_genai_use_vertexai
-
+    use_vertex_live = True
     model_name = GEMINI_LIVE_MODEL
-    
-    # Hide standard API key if using Vertex AI mode (authenticated via dynamic backend OAuth proxy)
-    api_key_to_return = "" if use_vertex_live else GEMINI_LIVE_API_KEY
-    
     location_to_return = VERTEX_LOCATION or "global"
     
     # Resolve branding theme config dynamically with Spanner persistence
@@ -154,19 +146,32 @@ async def get_config(mode: str = "google_1p", avatar: str = "Vera"):
     persona = theme.get("persona", "shopper") if theme else "shopper"
     system_prompt = SYSTEM_PROMPTS.get(persona, SYSTEM_PROMPTS["shopper"])
     
-    valid_avatars = {"Vera", "Kira", "Ingrid", "Sam", "Jay", "Paul", "Ben", "Kai", "Carmen", "Leo", "Piper"}
-    avatar_to_use = avatar if avatar in valid_avatars else "Vera"
+    AVATAR_VOICES = {
+        "Vera": "Aoede",     # Female
+        "Kira": "Kore",      # Female
+        "Ingrid": "Aoede",   # Female
+        "Sam": "Charon",     # Male
+        "Jay": "Fenrir",     # Male
+        "Paul": "Puck",      # Male
+        "Ben": "Charon",     # Male
+        "Kai": "Fenrir",     # Male
+        "Carmen": "Kore",    # Female
+        "Leo": "Puck",       # Male
+        "Piper": "Aoede"     # Female
+    }
+    avatar_to_use = avatar if avatar in AVATAR_VOICES else "Vera"
+    voice_to_use = AVATAR_VOICES.get(avatar_to_use, "Aoede")
 
     return {
-        "apiKey": api_key_to_return,
+        "apiKey": "",
         "modelName": model_name,
         "systemPrompt": system_prompt,
-        "useVertexAI": use_vertex_live,
+        "useVertexAI": True,
         "vertexProjectID": VERTEX_PROJECT_ID,
         "vertexLocation": location_to_return,
         "avatarMode": mode,
         "google1PAvatarName": avatar_to_use if mode == "google_1p" else "none",
-        "google1PVoiceName": "Aoede",
+        "google1PVoiceName": voice_to_use if mode == "google_1p" else "Aoede",
         "vadSilenceDurationMs": 400,
         "theme": theme
     }

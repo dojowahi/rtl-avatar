@@ -41,16 +41,16 @@ def load_dotenv(dotenv_path: str = ".env"):
 load_dotenv()
 
 class Settings(BaseModel):
-    google_genai_use_vertexai: bool = os.getenv("GOOGLE_GENAI_USE_VERTEXAI", "true").lower() == "true"
+    google_genai_use_vertexai: bool = True
     vertex_project_id: str = os.getenv("VERTEX_PROJECT_ID", "")
     vertex_location: str = os.getenv("VERTEX_LOCATION", "global")
     google_cloud_project: str = os.getenv("GOOGLE_CLOUD_PROJECT", "")
     google_cloud_location: str = os.getenv("GOOGLE_CLOUD_LOCATION", "global")
     spanner_instance: str = os.getenv("SPANNER_INSTANCE", "ecommerce-instance")
     spanner_database: str = os.getenv("SPANNER_DATABASE", "catalog-db")
-    gemini_live_api_key: str = os.getenv("GEMINI_LIVE_API_KEY", "")
     gemini_live_model: str = os.getenv("GEMINI_LIVE_MODEL", "gemini-3.1-flash-live-preview-04-2026")
     multimodal_embedding_model: str = os.getenv("MULTIMODAL_EMBEDDING_MODEL", "gemini-embedding-2")
+    multimodal_embedding_location: str = os.getenv("MULTIMODAL_EMBEDDING_LOCATION", "global")
     gcs_bucket_name: str = os.getenv("GCS_BUCKET_NAME", "gen-ai-4all-live-retail-images")
     image_generation_model: str = os.getenv("IMAGE_GENERATION_MODEL", "gemini-2.5-flash-image")
     vqa_model: str = os.getenv("VQA_MODEL", "gemini-2.5-flash")

@@ -1,26 +1,14 @@
 import { useEffect, useRef, memo, useState } from 'react';
-import mpegts from 'mpegts.js';
 import { Box, CircularProgress, Typography } from '@mui/material';
 
 interface AvatarDisplay1PProps {
   status: 'idle' | 'initializing' | 'ready' | 'error';
   useVertexAI?: boolean;
+  avatarName?: string;
 }
 
-interface MpegtsCustomLoader {
-  open: (url: string, range: { from: number; to: number }) => void;
-  close: () => void;
-  destroy: () => void;
-  abort: () => void;
-  isWorking: () => boolean;
-  onData?: (data: ArrayBuffer, receivedBytes: number) => void;
-}
-
-export const AvatarDisplay1P = memo(({ status, useVertexAI = true }: AvatarDisplay1PProps) => {
+export const AvatarDisplay1P = memo(({ status, useVertexAI = true, avatarName = 'Vera' }: AvatarDisplay1PProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const playerRef = useRef<mpegts.Player | null>(null);
-  const customLoaderRef = useRef<MpegtsCustomLoader | null>(null);
-  const receivedBytesRef = useRef<number>(0);
   const [hasFirstFrame, setHasFirstFrame] = useState(false);
   const [frameUrl, setFrameUrl] = useState<string | null>(null);
 
@@ -34,25 +22,47 @@ export const AvatarDisplay1P = memo(({ status, useVertexAI = true }: AvatarDispl
   useEffect(() => {
     if (!useVertexAI || !videoRef.current) return;
 
-    // Use mpegts custom loader logic to feed websocket chunks directly into media element buffers
-    const player = mpegts.createPlayer({
-      type: 'mpegts',
-      isLive: true,
-      url: 'custom',
-    }, {
-      customLoader: function(this: MpegtsCustomLoader) {
-        this.open = () => {};
-        this.close = () => {};
-        this.destroy = () => {};
-        this.abort = () => {};
-        this.isWorking = () => false;
-        customLoaderRef.current = this;
-      } as unknown as { new(): mpegts.BaseLoader },
-    });
+    const mediaSource = new MediaSource();
+    videoRef.current.src = URL.createObjectURL(mediaSource);
 
-    player.attachMediaElement(videoRef.current);
-    player.load();
-    playerRef.current = player;
+    let sourceBuffer: SourceBuffer | null = null;
+    const queue: ArrayBuffer[] = [];
+
+    const processQueue = () => {
+      if (!sourceBuffer || sourceBuffer.updating || queue.length === 0) return;
+      try {
+        const chunk = queue.shift();
+        if (chunk) {
+          sourceBuffer.appendBuffer(chunk);
+        }
+      } catch (e) {
+        console.warn('[AvatarDisplay1P] appendBuffer error:', e);
+      }
+    };
+
+    const handleSourceOpen = () => {
+      try {
+        const mimeCodec = [
+          'video/mp4; codecs="avc1.42c020, mp4a.40.2"',
+          'video/mp4; codecs="avc1.42e01e, mp4a.40.2"',
+          'video/mp4; codecs="avc1.4d401f, mp4a.40.2"',
+          'video/mp4'
+        ].find(mime => MediaSource.isTypeSupported(mime)) || 'video/mp4';
+
+        sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
+        sourceBuffer.mode = 'sequence';
+
+        sourceBuffer.addEventListener('updateend', () => {
+          processQueue();
+        });
+
+        processQueue();
+      } catch (err) {
+        console.error('[AvatarDisplay1P] Failed to create SourceBuffer:', err);
+      }
+    };
+
+    mediaSource.addEventListener('sourceopen', handleSourceOpen);
 
     const handleVideoChunk = (event: Event) => {
       const base64Data = (event as CustomEvent).detail;
@@ -70,11 +80,9 @@ export const AvatarDisplay1P = memo(({ status, useVertexAI = true }: AvatarDispl
         for (let i = 0; i < binaryString.length; i++) {
           uint8Array[i] = binaryString.charCodeAt(i);
         }
-        
-        if (customLoaderRef.current?.onData) {
-          customLoaderRef.current.onData(uint8Array.buffer, receivedBytesRef.current);
-          receivedBytesRef.current += uint8Array.byteLength;
-        }
+
+        queue.push(uint8Array.buffer);
+        processQueue();
 
         if (videoRef.current?.paused && status === 'ready') {
           videoRef.current.play().catch(e => {
@@ -92,10 +100,10 @@ export const AvatarDisplay1P = memo(({ status, useVertexAI = true }: AvatarDispl
 
     return () => {
       window.removeEventListener('video-chunk-received', handleVideoChunk);
-      if (playerRef.current) {
-        playerRef.current.detachMediaElement();
-        playerRef.current.destroy();
-        playerRef.current = null;
+      mediaSource.removeEventListener('sourceopen', handleSourceOpen);
+      if (videoRef.current) {
+        videoRef.current.removeAttribute('src');
+        videoRef.current.load();
       }
     };
   }, [status, useVertexAI]);
@@ -180,7 +188,7 @@ export const AvatarDisplay1P = memo(({ status, useVertexAI = true }: AvatarDispl
             />
           </Box>
           <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'primary.main', mt: 1 }}>
-            Vera is listening...
+            {avatarName} is listening...
           </Typography>
         </Box>
       ) : frameUrl ? (
@@ -191,7 +199,8 @@ export const AvatarDisplay1P = memo(({ status, useVertexAI = true }: AvatarDispl
           sx={{
             width: '100%',
             height: '100%',
-            objectFit: 'cover',
+            objectFit: 'contain',
+            objectPosition: 'center',
             display: 'block'
           }}
         />
@@ -201,7 +210,8 @@ export const AvatarDisplay1P = memo(({ status, useVertexAI = true }: AvatarDispl
           style={{
             width: '100%',
             height: '100%',
-            objectFit: 'cover',
+            objectFit: 'contain',
+            objectPosition: 'center',
             display: (status === 'ready' && useVertexAI) ? 'block' : 'none'
           }}
           playsInline

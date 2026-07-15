@@ -210,10 +210,11 @@ export function MobileViewPage({ navigate, products: initialProducts }: MobileVi
                     connectionState === 'connecting' ? 'initializing' : 'idle'
                   } 
                   useVertexAI={config?.useVertexAI}
+                  avatarName={config?.google1PAvatarName || 'Vera'}
                 />
               </Box>
               <Typography variant="subtitle1" sx={{ fontWeight: '900', mb: 0.5 }}>
-                Meet Vera AI Assistant
+                Meet {config?.google1PAvatarName || 'Vera'} AI Assistant
               </Typography>
               <Typography variant="caption" sx={{ color: '#94a3b8', textAlign: 'center', mb: 3, px: 1, lineHeight: 1.4 }}>
                 Tap below to talk with your real-time multimodal shopping concierge.

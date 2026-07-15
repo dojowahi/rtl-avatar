@@ -30,13 +30,13 @@ def test():
     global_client = genai.Client()
     print("Global client class:", global_client.__class__.__name__)
 
-    print("\nInitializing theme client with vertexai=False parameter...")
+    print("\nInitializing explicit Vertex AI client...")
     try:
-        theme_client = genai.Client(vertexai=False, api_key=settings.gemini_live_api_key)
-        print("Theme client successfully initialized!")
+        theme_client = genai.Client(vertexai=True, project=settings.vertex_project_id or "mock-project", location="us-central1")
+        print("Explicit Vertex AI client successfully initialized!")
         
-        # Test a simple call to verify it runs via AI Studio Developer API
-        print("Generating text with theme client (AI Studio mode)...")
+        # Test a simple call to verify it runs via Vertex AI
+        print("Generating text with theme client (Vertex AI mode)...")
         res = theme_client.models.generate_content(
             model="gemini-3.5-flash",
             contents="Say hello"

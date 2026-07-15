@@ -18,7 +18,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import Optional
 from google.genai import types
-from services import db, get_ai_client, MULTIMODAL_EMBEDDING_MODEL, settings
+from services import db, get_ai_client, get_embedding_client, MULTIMODAL_EMBEDDING_MODEL, settings
 
 class StructuredSearchQuery(BaseModel):
     semantic_query: str = Field(description="The semantic search query without price range filters, e.g., 'blue cotton shirt'.")
@@ -191,7 +191,7 @@ async def handle_mcp(rpc_req: RPCRequest, persona: str = "default"):
                 formatted_query = f"task: search result | query: {semantic_query}"
                 query_vector = [0.0] * 768
                 try:
-                    client = get_ai_client()
+                    client = get_embedding_client()
                     response = client.models.embed_content(
                         model=MULTIMODAL_EMBEDDING_MODEL,
                         contents=formatted_query,

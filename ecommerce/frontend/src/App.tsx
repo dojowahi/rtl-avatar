@@ -698,6 +698,7 @@ function MainStorePage({
                     connectionState === 'connecting' ? 'initializing' : 'idle'
                   } 
                   useVertexAI={config?.useVertexAI}
+                  avatarName={selectedAvatar}
                 />
                 {isCameraActive && (
                   <Box sx={{
@@ -742,7 +743,7 @@ function MainStorePage({
                   textAlign: 'center'
                 }}>
                   <Typography variant="body2" sx={{ fontWeight: '800', mb: 0.5, fontSize: '0.82rem', color: 'text.primary' }}>
-                    {isTeenager ? 'Meet Vera, your teenage helper (she smirks).' : 'Meet Vera, your personal shopper.'}
+                    {isTeenager ? `Meet ${selectedAvatar}, your teenage helper (they smirk).` : `Meet ${selectedAvatar}, your personal shopper.`}
                   </Typography>
                   <Typography variant="caption" color="text.secondary" sx={{ display: 'block', lineHeight: 1.3, fontSize: '0.72rem' }}>
                     Click <strong>"Start Shopping"</strong> below to start browsing the catalog and ordering items.
@@ -876,7 +877,7 @@ function MainStorePage({
                   <Box sx={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: 1 }}>
                     <CircularProgress size={12} />
                     <Typography variant="caption" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-                      {isTeenager ? 'Vera is thinking or smirking...' : 'Vera is working...'}
+                      {isTeenager ? `${selectedAvatar} is thinking or smirking...` : `${selectedAvatar} is working...`}
                     </Typography>
                   </Box>
                 )}

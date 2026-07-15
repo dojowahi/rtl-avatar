@@ -127,11 +127,8 @@ def generate_ai_products(count: int, project_id: str, location: str, category_fi
     gcs_token = None
     if HAS_GENAI:
         try:
-            # Initialize the unified google-genai Client based on settings
-            if settings.google_genai_use_vertexai:
-                client = genai.Client(vertexai=True, project=project_id, location=location)
-            else:
-                client = genai.Client(vertexai=False, api_key=settings.gemini_live_api_key)
+            # Initialize the unified google-genai Client for Cloud / Vertex AI mode
+            client = genai.Client(vertexai=True, project=project_id, location=location)
         except Exception as e:
             logger.error(f"Failed to initialize AI SDK: {e}. Mocks active.")
             
@@ -314,9 +311,11 @@ def generate_ai_products(count: int, project_id: str, location: str, category_fi
         if client:
             try:
                 emb_model_name = os.getenv("MULTIMODAL_EMBEDDING_MODEL", "gemini-embedding-2")
+                emb_location = os.getenv("MULTIMODAL_EMBEDDING_LOCATION", "global")
+                emb_client = genai.Client(vertexai=True, project=project_id, location=emb_location)
                 # Text embedding (768 length)
                 formatted_doc = f"title: {title} | text: {description}"
-                text_response = client.models.embed_content(
+                text_response = emb_client.models.embed_content(
                     model=emb_model_name,
                     contents=formatted_doc,
                     config=types.EmbedContentConfig(output_dimensionality=768)
@@ -326,14 +325,14 @@ def generate_ai_products(count: int, project_id: str, location: str, category_fi
 
                 # Image embedding (1408 length)
                 if image_bytes:
-                    image_response = client.models.embed_content(
+                    image_response = emb_client.models.embed_content(
                         model=emb_model_name,
                         contents=types.Part.from_bytes(data=image_bytes, mime_type="image/png"),
                         config=types.EmbedContentConfig(output_dimensionality=1408)
                     )
                     if image_response.embeddings:
                         image_embedding = image_response.embeddings[0].values
-                logger.info(f"Multimodal vector embeddings generated via {emb_model_name}.")
+                logger.info(f"Multimodal vector embeddings generated via {emb_model_name} in location {emb_location}.")
             except Exception as ex:
                 logger.warn(f"Embedding calculation step failed, using zeroed vector arrays: {ex}")
 
@@ -462,10 +461,7 @@ def generate_synthetic_data(products_count: int, customers_count: int, orders_co
     client = None
     if HAS_GENAI:
         try:
-            if settings.google_genai_use_vertexai:
-                client = genai.Client(vertexai=True, project=project_id, location=location)
-            else:
-                client = genai.Client(vertexai=False, api_key=settings.gemini_live_api_key)
+            client = genai.Client(vertexai=True, project=project_id, location=location)
         except Exception as e:
             logger.error(f"Failed to initialize AI Client for reviews: {e}")
 
