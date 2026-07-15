@@ -683,54 +683,65 @@ function MainStorePage({
 
               <Box sx={{ 
                 flexGrow: 1, 
-                bgcolor: '#0f172a', 
-                borderRadius: 4, 
-                overflow: 'hidden', 
-                mb: 2, 
-                position: 'relative', 
                 display: 'flex', 
-                justifyContent: 'center',
-                boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.3)'
+                justifyContent: 'center', 
+                alignItems: 'center',
+                mb: 2, 
+                minHeight: 0
               }}>
-                <AvatarDisplay1P 
-                  status={
-                    connectionState === 'connected' ? 'ready' : 
-                    connectionState === 'connecting' ? 'initializing' : 'idle'
-                  } 
-                  useVertexAI={config?.useVertexAI}
-                  avatarName={selectedAvatar}
-                />
-                {isCameraActive && (
-                  <Box sx={{
-                    position: 'absolute',
-                    bottom: 12,
-                    right: 12,
-                    width: 90,
-                    height: 90,
-                    borderRadius: '50%',
-                    overflow: 'hidden',
-                    border: '2px solid rgba(255,255,255,0.8)',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
-                    zIndex: 10,
-                    transform: 'scaleX(-1)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    bgcolor: '#000'
-                  }}>
-                    <video 
-                      ref={cameraVideoRef}
-                      autoPlay
-                      playsInline
-                      muted
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover'
-                      }}
-                    />
-                  </Box>
-                )}
+                <Box sx={{
+                  height: '100%',
+                  aspectRatio: '704 / 1280',
+                  maxHeight: '100%',
+                  bgcolor: '#0f172a',
+                  borderRadius: 4,
+                  overflow: 'hidden',
+                  position: 'relative',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.12)'
+                }}>
+                  <AvatarDisplay1P 
+                    status={
+                      connectionState === 'connected' ? 'ready' : 
+                      connectionState === 'connecting' ? 'initializing' : 'idle'
+                    } 
+                    useVertexAI={config?.useVertexAI}
+                    avatarName={selectedAvatar}
+                  />
+                  {isCameraActive && (
+                    <Box sx={{
+                      position: 'absolute',
+                      bottom: 12,
+                      right: 12,
+                      width: 90,
+                      height: 90,
+                      borderRadius: '50%',
+                      overflow: 'hidden',
+                      border: '2px solid rgba(255,255,255,0.8)',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+                      zIndex: 10,
+                      transform: 'scaleX(-1)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      bgcolor: '#000'
+                    }}>
+                      <video 
+                        ref={cameraVideoRef}
+                        autoPlay
+                        playsInline
+                        muted
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover'
+                        }}
+                      />
+                    </Box>
+                  )}
+                </Box>
               </Box>
 
               {connectionState !== 'connected' && (

@@ -133,8 +133,7 @@ export const AvatarDisplay1P = memo(({ status, useVertexAI = true, avatarName = 
       justifyContent: 'center',
       bgcolor: 'rgba(0,0,0,0.02)',
       borderRadius: 4,
-      overflow: 'hidden',
-      aspectRatio: '704 / 1280', 
+      overflow: 'hidden'
     }}>
       {!useVertexAI && status === 'ready' ? (
         <Box sx={{
@@ -199,7 +198,7 @@ export const AvatarDisplay1P = memo(({ status, useVertexAI = true, avatarName = 
           sx={{
             width: '100%',
             height: '100%',
-            objectFit: 'contain',
+            objectFit: 'cover',
             objectPosition: 'center',
             display: 'block'
           }}
@@ -210,7 +209,7 @@ export const AvatarDisplay1P = memo(({ status, useVertexAI = true, avatarName = 
           style={{
             width: '100%',
             height: '100%',
-            objectFit: 'contain',
+            objectFit: 'cover',
             objectPosition: 'center',
             display: (status === 'ready' && useVertexAI) ? 'block' : 'none'
           }}

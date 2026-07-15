@@ -135,7 +135,10 @@ async def live_avatar_proxy(client_ws: WebSocket, path: str = ""):
                         except Exception:
                             pass
                         # Forward upstream messages directly to browser client
-                        await client_ws.send_text(message)
+                        if isinstance(message, bytes):
+                            await client_ws.send_bytes(message)
+                        else:
+                            await client_ws.send_text(message)
                 except Exception as e:
                     logger.error(f"Upstream to Client error: {e}")
 
