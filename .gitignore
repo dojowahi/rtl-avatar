@@ -97,3 +97,5 @@ live-api-demo/
 # Excluded AI metadata
 .agent/
 GEMINI.md
+Developer's guide to Gemini Live Avatar.pdf
+*.pdf
