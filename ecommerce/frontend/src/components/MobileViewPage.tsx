@@ -10,12 +10,9 @@ import {
   Chip, 
   Badge, 
   Dialog, 
-  DialogContent,
-  Select,
-  MenuItem,
-  Drawer,
-  CircularProgress,
-  Divider
+  Select, 
+  MenuItem, 
+  Drawer
 } from '@mui/material';
 import { 
   ArrowBack, 
@@ -31,8 +28,6 @@ import {
   GraphicEq,
   PlayArrow,
   Stop,
-  Mic,
-  MicOff,
   Videocam,
   VideocamOff,
   ExpandMore,
@@ -54,7 +49,7 @@ interface MobileViewPageProps {
   configData?: any;
 }
 
-export function MobileViewPage({ navigate, products: initialProducts, configData }: MobileViewPageProps) {
+export function MobileViewPage({ navigate, products: initialProducts }: MobileViewPageProps) {
   const [products, setProducts] = useState<any[]>(initialProducts || []);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
@@ -67,12 +62,9 @@ export function MobileViewPage({ navigate, products: initialProducts, configData
   const {
     connectionState,
     isRecording,
-    messages,
     activeVisual,
-    activeOverlay,
     connect,
     disconnect,
-    sendTextMessage,
     sendVideoFrame,
     config
   } = useGeminiLive('google_1p', sessionId, selectedAvatar);
@@ -679,18 +671,20 @@ export function MobileViewPage({ navigate, products: initialProducts, configData
             anchor="bottom"
             open={isCartOpen}
             onClose={() => setIsCartOpen(false)}
-            PaperProps={{
-              sx: {
-                width: 395,
-                mx: 'auto',
-                borderTopLeftRadius: '28px',
-                borderTopRightRadius: '28px',
-                maxHeight: '75%',
-                bgcolor: '#ffffff',
-                color: '#0f172a',
-                p: 3,
-                display: 'flex',
-                flexDirection: 'column'
+            slotProps={{
+              paper: {
+                sx: {
+                  width: 395,
+                  mx: 'auto',
+                  borderTopLeftRadius: '28px',
+                  borderTopRightRadius: '28px',
+                  maxHeight: '75%',
+                  bgcolor: '#ffffff',
+                  color: '#0f172a',
+                  p: 3,
+                  display: 'flex',
+                  flexDirection: 'column'
+                }
               }
             }}
           >

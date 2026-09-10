@@ -88,11 +88,13 @@ export function useMCPExecution(
               setIsProcessingTool(false);
               triggerVisuals();
               window.removeEventListener('audio-playback-started', syncHandler);
+              window.removeEventListener('video-chunk-received', syncHandler);
               resolve();
             }
           };
 
           window.addEventListener('audio-playback-started', syncHandler);
+          window.addEventListener('video-chunk-received', syncHandler);
 
           // Latency safety guard
           setTimeout(() => {
@@ -101,6 +103,7 @@ export function useMCPExecution(
               setIsProcessingTool(false);
               triggerVisuals();
               window.removeEventListener('audio-playback-started', syncHandler);
+              window.removeEventListener('video-chunk-received', syncHandler);
               resolve();
             }
           }, 3500);

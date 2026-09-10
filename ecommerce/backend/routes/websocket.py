@@ -44,7 +44,12 @@ async def live_avatar_proxy(client_ws: WebSocket, path: str = ""):
     try:
         # 2. Establish connection to Google upstream
         logger.info(f"Connecting to Gemini Live API: {target_url.split('?')[0]}")
-        async with websockets.connect(target_url) as upstream_ws:
+        async with websockets.connect(
+            target_url,
+            max_size=None,
+            ping_interval=20,
+            ping_timeout=20
+        ) as upstream_ws:
             logger.info("Connected to Gemini Live Upstream successfully")
 
             # Channel setup status
@@ -111,39 +116,38 @@ async def live_avatar_proxy(client_ws: WebSocket, path: str = ""):
                                 logger.warning(f"Failed to inspect setup model path: {parse_err}")
                         
                         await upstream_ws.send(message)
-                except WebSocketDisconnect:
-                    logger.info("Client disconnected.")
+                except (WebSocketDisconnect, websockets.exceptions.ConnectionClosed):
+                    logger.info("Client to upstream connection closed gracefully.")
+                except asyncio.CancelledError:
+                    pass
                 except Exception as e:
                     logger.error(f"Client to Upstream error: {e}")
 
             async def upstream_to_client():
                 try:
                     async for message in upstream_ws:
-                        try:
-                            msg_obj = json.loads(message)
-                            if "serverContent" in msg_obj:
-                                sc = msg_obj["serverContent"]
-                                parts = sc.get("modelTurn", {}).get("parts", [])
-                                p_summary = []
-                                for p in parts:
-                                    if "inlineData" in p:
-                                        p_summary.append(f"inlineData({p['inlineData'].get('mimeType')}, len={len(p['inlineData'].get('data', ''))})")
-                                    elif "text" in p:
-                                        p_summary.append(f"text({p['text'][:50]})")
-                                if p_summary:
-                                    logger.info(f"UPSTREAM SERVER CONTENT PARTS: {p_summary}")
-                        except Exception:
-                            pass
                         # Forward upstream messages directly to browser client
                         if isinstance(message, bytes):
                             await client_ws.send_bytes(message)
                         else:
                             await client_ws.send_text(message)
+                except (WebSocketDisconnect, websockets.exceptions.ConnectionClosed):
+                    logger.info("Upstream to client connection closed gracefully.")
+                except asyncio.CancelledError:
+                    pass
                 except Exception as e:
                     logger.error(f"Upstream to Client error: {e}")
 
-            # Run loops concurrently
-            await asyncio.gather(client_to_upstream(), upstream_to_client())
+            # Run loops concurrently and terminate both as soon as one completes or closes
+            t_client = asyncio.create_task(client_to_upstream())
+            t_upstream = asyncio.create_task(upstream_to_client())
+            
+            done, pending = await asyncio.wait(
+                [t_client, t_upstream],
+                return_when=asyncio.FIRST_COMPLETED
+            )
+            for p in pending:
+                p.cancel()
 
     except Exception as e:
         logger.error(f"Failed to proxy connection: {str(e)}")

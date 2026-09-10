@@ -48,7 +48,7 @@ class Settings(BaseModel):
     google_cloud_location: str = os.getenv("GOOGLE_CLOUD_LOCATION", "global")
     spanner_instance: str = os.getenv("SPANNER_INSTANCE", "ecommerce-instance")
     spanner_database: str = os.getenv("SPANNER_DATABASE", "catalog-db")
-    gemini_live_model: str = os.getenv("GEMINI_LIVE_MODEL", "gemini-3.1-flash-live-preview-04-2026")
+    gemini_live_model: str = os.getenv("GEMINI_LIVE_MODEL", "gemini-3.5-live-preview")
     multimodal_embedding_model: str = os.getenv("MULTIMODAL_EMBEDDING_MODEL", "gemini-embedding-2")
     multimodal_embedding_location: str = os.getenv("MULTIMODAL_EMBEDDING_LOCATION", "global")
     gcs_bucket_name: str = os.getenv("GCS_BUCKET_NAME", "gen-ai-4all-live-retail-images")
