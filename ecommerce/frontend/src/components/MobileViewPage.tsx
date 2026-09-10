@@ -12,7 +12,8 @@ import {
   Dialog, 
   Select, 
   MenuItem, 
-  Drawer
+  Drawer,
+  CircularProgress
 } from '@mui/material';
 import { 
   ArrowBack, 
@@ -394,19 +395,27 @@ export function MobileViewPage({ navigate, products: initialProducts }: MobileVi
                 minHeight: 250
               }}>
                 {/* Centered Portrait Box for 100% visible avatar */}
-                <Box sx={{ 
-                  height: 210,
-                  aspectRatio: '704 / 1280', 
-                  borderRadius: 3, 
-                  overflow: 'hidden', 
-                  bgcolor: '#000000',
-                  position: 'relative',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.6)',
-                  border: '1px solid rgba(255,255,255,0.15)'
-                }}>
+                <Box 
+                  onClick={() => {
+                    if (connectionState === 'disconnected') {
+                      connect();
+                    }
+                  }}
+                  sx={{ 
+                    height: 210,
+                    aspectRatio: '704 / 1280', 
+                    borderRadius: 3, 
+                    overflow: 'hidden', 
+                    bgcolor: '#000000',
+                    position: 'relative',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.6)',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    cursor: connectionState === 'disconnected' ? 'pointer' : 'default'
+                  }}
+                >
                   <AvatarDisplay1P 
                     status={
                       connectionState === 'connected' ? 'ready' : 
@@ -415,6 +424,37 @@ export function MobileViewPage({ navigate, products: initialProducts }: MobileVi
                     useVertexAI={config?.useVertexAI}
                     avatarName={selectedAvatar}
                   />
+
+                  {/* Tap to start hint when idle */}
+                  {connectionState === 'disconnected' && (
+                    <Box sx={{
+                      position: 'absolute',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: 0.8,
+                      color: '#ffffff',
+                      textAlign: 'center',
+                      pointerEvents: 'none'
+                    }}>
+                      <Box sx={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: '50%',
+                        bgcolor: 'rgba(99, 102, 241, 0.5)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        border: '2px solid rgba(165, 180, 252, 0.8)',
+                        boxShadow: '0 0 14px rgba(99, 102, 241, 0.6)'
+                      }}>
+                        <GraphicEq sx={{ fontSize: 22, color: '#ffffff' }} />
+                      </Box>
+                      <Typography variant="caption" sx={{ fontWeight: 700, color: '#e2e8f0', fontSize: '11px' }}>
+                        Tap to Talk to {selectedAvatar}
+                      </Typography>
+                    </Box>
+                  )}
 
                   {/* Camera PiP inside the mobile avatar box */}
                   {isCameraActive && (
@@ -449,8 +489,9 @@ export function MobileViewPage({ navigate, products: initialProducts }: MobileVi
                     <Button 
                       variant="contained" 
                       size="small"
-                      startIcon={<PlayArrow />} 
+                      startIcon={connectionState === 'connecting' ? <CircularProgress size={14} color="inherit" /> : <PlayArrow />} 
                       onClick={connect}
+                      disabled={connectionState === 'connecting'}
                       sx={{ 
                         bgcolor: '#6366f1', 
                         borderRadius: '20px', 
@@ -462,7 +503,7 @@ export function MobileViewPage({ navigate, products: initialProducts }: MobileVi
                         '&:hover': { bgcolor: '#4f46e5' } 
                       }}
                     >
-                      Start Live Voice
+                      {connectionState === 'connecting' ? 'Connecting...' : 'Start Live Voice'}
                     </Button>
                   ) : (
                     <Button 
@@ -645,7 +686,18 @@ export function MobileViewPage({ navigate, products: initialProducts }: MobileVi
           }}>
             {[
               { label: 'Shop', icon: <Home /> },
-              { label: 'Vera AI', icon: <GraphicEq /> },
+              { 
+                label: `${selectedAvatar} AI`, 
+                icon: connectionState === 'connected' ? (
+                  <Badge color="success" variant="dot">
+                    <GraphicEq sx={{ color: '#22c55e' }} />
+                  </Badge>
+                ) : connectionState === 'connecting' ? (
+                  <CircularProgress size={18} sx={{ color: '#6366f1' }} />
+                ) : (
+                  <GraphicEq />
+                )
+              },
               { label: 'Cart', icon: <Badge badgeContent={totalCartCount} color="error"><ShoppingCart /></Badge> },
               { label: 'Profile', icon: <Person /> }
             ].map((tab, idx) => (
@@ -653,7 +705,12 @@ export function MobileViewPage({ navigate, products: initialProducts }: MobileVi
                 key={tab.label}
                 onClick={() => {
                   setActiveBottomTab(idx);
-                  if (idx === 1) setIsAiExpanded(true);
+                  if (idx === 1) {
+                    setIsAiExpanded(true);
+                    if (connectionState === 'disconnected') {
+                      connect();
+                    }
+                  }
                   if (idx === 2) setIsCartOpen(true);
                 }}
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: activeBottomTab === idx ? '#000000' : '#94a3b8' }}

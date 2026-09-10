@@ -70,6 +70,9 @@ export function useGeminiLive(mode: 'none' | 'google_1p' = 'none', sessionId?: s
     setConnectionState('connecting');
 
     try {
+      // Resume AudioContext immediately within user gesture frame for mobile browsers
+      await resumeAudioContext();
+
       // 1. Fetch dynamic config
       const res = await fetch(`/api/config?mode=${mode}&avatar=${encodeURIComponent(avatar)}`);
       const config = await res.json();
@@ -79,8 +82,6 @@ export function useGeminiLive(mode: 'none' | 'google_1p' = 'none', sessionId?: s
       // 2. Fetch allowed tools
       const tools = await fetchMCPTools("default-shopper");
       mcpToolsRef.current = tools;
-
-      await resumeAudioContext();
 
       // 3. Spawn API and worker thread
       const api = new GeminiLiveApi({
