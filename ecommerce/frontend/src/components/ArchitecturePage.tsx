@@ -43,6 +43,7 @@ interface ArchitecturePageProps {
 export function ArchitecturePage({ navigate }: ArchitecturePageProps) {
   const [activeTab, setActiveTab] = useState(0);
   const [selectedFlowStep, setSelectedFlowStep] = useState<number | null>(null);
+  const [selectedTable, setSelectedTable] = useState<number>(0);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
@@ -184,62 +185,90 @@ export function ArchitecturePage({ navigate }: ArchitecturePageProps) {
   ];
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#0b0f19', color: '#f8fafc', py: 4, px: { xs: 2, md: 6 } }}>
-      <Container maxWidth="lg">
-        
-        {/* Top Header Section */}
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', md: 'center' }, mb: 5, gap: 2.5 }}>
-          <Box>
-            <Typography variant="h4" sx={{ fontWeight: '900', letterSpacing: '-0.03em', background: 'linear-gradient(90deg, #6366f1 0%, #a855f7 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              PROJECT ARCHITECTURE & DESIGN
-            </Typography>
-            <Typography variant="subtitle2" sx={{ color: 'rgba(148, 163, 184, 0.8)', mt: 0.5, fontWeight: '500' }}>
-              Functional capabilities, transaction flow, and Cloud Spanner database schema
-            </Typography>
-          </Box>
+    <Box sx={{ minHeight: '100vh', bgcolor: '#f8fafc', color: '#0f172a', display: 'flex', flexDirection: 'column' }}>
+      {/* Modern Glassmorphic Header */}
+      <Box sx={{ 
+        bgcolor: 'rgba(255, 255, 255, 0.85)', 
+        backdropFilter: 'blur(16px)',
+        py: 2, 
+        px: 4, 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        borderBottom: '1px solid rgba(226, 232, 240, 0.8)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 100
+      }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Typography variant="h5" sx={{ fontWeight: '900', letterSpacing: '-0.03em' }} color="primary">
+            RETAIL ASSISTANT
+          </Typography>
+          <Chip 
+            label="Architecture & System Design" 
+            size="small" 
+            sx={{ 
+              fontWeight: 700, 
+              fontSize: '0.75rem',
+              bgcolor: 'rgba(0, 0, 0, 0.05)', 
+              color: '#334155', 
+              borderRadius: '12px' 
+            }} 
+          />
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Button 
             variant="outlined" 
+            size="small" 
             startIcon={<ArrowBack />} 
             onClick={() => navigate('/')}
+            color="inherit"
             sx={{ 
-              color: '#ffffff', 
-              borderColor: 'rgba(255,255,255,0.15)', 
-              borderRadius: '24px',
-              textTransform: 'none',
-              px: 3,
-              backdropFilter: 'blur(10px)',
-              '&:hover': {
-                borderColor: '#6366f1',
-                bgcolor: 'rgba(99, 102, 241, 0.08)'
-              }
+              borderColor: 'rgba(0,0,0,0.12)', 
+              borderRadius: '20px', 
+              fontSize: '0.8rem',
+              px: 2,
+              '&:hover': { borderColor: 'primary.main', bgcolor: 'rgba(0,0,0,0.02)' } 
             }}
           >
             Back to Store
           </Button>
         </Box>
+      </Box>
+
+      {/* Main Container */}
+      <Container maxWidth="xl" sx={{ flexGrow: 1, py: 4, px: { xs: 2, md: 4 } }}>
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="h4" sx={{ fontWeight: '900', letterSpacing: '-0.03em', color: '#0f172a' }}>
+            System Architecture & Specifications
+          </Typography>
+          <Typography variant="subtitle2" sx={{ color: '#64748b', mt: 0.5, fontWeight: '500' }}>
+            Functional capabilities, transaction flow, and Cloud Spanner database schema
+          </Typography>
+        </Box>
 
         {/* Tab Controls */}
-        <Box sx={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)', mb: 4 }}>
+        <Box sx={{ borderBottom: '1px solid #e2e8f0', mb: 4 }}>
           <Tabs 
             value={activeTab} 
             onChange={handleTabChange}
-            textColor="inherit"
-            indicatorColor="secondary"
+            textColor="primary"
+            indicatorColor="primary"
             sx={{
               '& .MuiTab-root': {
                 textTransform: 'none',
                 fontWeight: '700',
-                fontSize: '1rem',
+                fontSize: '0.95rem',
                 minWidth: 120,
-                color: '#94a3b8',
+                color: '#64748b',
                 '&.Mui-selected': {
-                  color: '#ffffff'
+                  color: '#0f172a'
                 }
               },
               '& .MuiTabs-indicator': {
                 height: 3,
                 borderRadius: '3px 3px 0 0',
-                background: 'linear-gradient(90deg, #6366f1, #a855f7)'
+                bgcolor: 'primary.main'
               }
             }}
           >
@@ -252,44 +281,45 @@ export function ArchitecturePage({ navigate }: ArchitecturePageProps) {
         {/* Tab content 0: Capabilities */}
         {activeTab === 0 && (
           <Box>
-            <Grid container spacing={3.5}>
+            <Grid container spacing={3}>
               {capabilities.map((cap, idx) => (
                 <Grid size={{ xs: 12, md: 6 }} key={idx}>
                   <Card 
+                    elevation={0}
                     sx={{ 
                       height: '100%', 
-                      bgcolor: 'rgba(17, 24, 39, 0.7)', 
-                      backdropFilter: 'blur(12px)',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                      borderRadius: 5,
-                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      bgcolor: '#ffffff', 
+                      border: '1px solid #e2e8f0',
+                      borderRadius: 4,
+                      boxShadow: '0 4px 20px rgba(0,0,0,0.02)',
+                      transition: 'all 0.25s ease',
                       '&:hover': {
-                        transform: 'translateY(-4px)',
-                        borderColor: 'rgba(99, 102, 241, 0.4)',
-                        boxShadow: '0 10px 30px rgba(99, 102, 241, 0.1)'
+                        transform: 'translateY(-3px)',
+                        boxShadow: '0 12px 30px rgba(0,0,0,0.06)',
+                        borderColor: '#cbd5e1'
                       }
                     }}
                   >
                     <CardContent sx={{ p: 3.5 }}>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                        <Box sx={{ bgcolor: 'rgba(99, 102, 241, 0.15)', p: 1.5, borderRadius: 3, display: 'flex' }}>
+                        <Box sx={{ bgcolor: 'rgba(0, 0, 0, 0.04)', p: 1.5, borderRadius: 3, display: 'flex' }}>
                           {cap.icon}
                         </Box>
                         <Chip 
                           label={cap.tag} 
                           size="small" 
                           sx={{ 
-                            bgcolor: 'rgba(168, 85, 247, 0.15)', 
-                            color: '#e9d5ff', 
+                            bgcolor: '#f1f5f9', 
+                            color: '#334155', 
                             fontWeight: '700',
-                            border: '1px solid rgba(168, 85, 247, 0.3)'
+                            border: '1px solid #e2e8f0'
                           }} 
                         />
                       </Box>
-                      <Typography variant="h6" sx={{ fontWeight: '800', mb: 1.5, color: '#ffffff' }}>
+                      <Typography variant="h6" sx={{ fontWeight: '800', mb: 1, color: '#0f172a' }}>
                         {cap.title}
                       </Typography>
-                      <Typography variant="body2" sx={{ color: '#94a3b8', lineHeight: 1.6 }}>
+                      <Typography variant="body2" sx={{ color: '#64748b', lineHeight: 1.6 }}>
                         {cap.description}
                       </Typography>
                     </CardContent>
@@ -299,32 +329,32 @@ export function ArchitecturePage({ navigate }: ArchitecturePageProps) {
             </Grid>
 
             {/* Architecture Highlights */}
-            <Paper sx={{ p: 4, mt: 5, bgcolor: 'rgba(17, 24, 39, 0.4)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: 5 }}>
-              <Typography variant="h6" sx={{ fontWeight: '850', color: '#ffffff', mb: 2 }}>
+            <Paper elevation={0} sx={{ p: 4, mt: 4, bgcolor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+              <Typography variant="h6" sx={{ fontWeight: '850', color: '#0f172a', mb: 2.5 }}>
                 Key Functional Highlights
               </Typography>
               <Grid container spacing={4}>
                 <Grid size={{ xs: 12, md: 4 }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: '750', color: '#a855f7', mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <CheckCircleOutlined fontSize="small" /> Multi-Persona Retail Simulator
+                  <Typography variant="subtitle1" sx={{ fontWeight: '750', color: '#0f172a', mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <CheckCircleOutlined fontSize="small" color="primary" /> Multi-Persona Retail Simulator
                   </Typography>
-                  <Typography variant="body2" sx={{ color: '#94a3b8', lineHeight: 1.5 }}>
+                  <Typography variant="body2" sx={{ color: '#64748b', lineHeight: 1.6 }}>
                     The backend supports switching retailers dynamically. Brand layouts and styles are generated dynamically, adapting colours, typography, and assistant personalities on the fly.
                   </Typography>
                 </Grid>
                 <Grid size={{ xs: 12, md: 4 }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: '750', color: '#6366f1', mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <CheckCircleOutlined fontSize="small" /> Advanced Vector RAG Integration
+                  <Typography variant="subtitle1" sx={{ fontWeight: '750', color: '#0f172a', mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <CheckCircleOutlined fontSize="small" color="primary" /> Advanced Vector RAG Integration
                   </Typography>
-                  <Typography variant="body2" sx={{ color: '#94a3b8', lineHeight: 1.5 }}>
+                  <Typography variant="body2" sx={{ color: '#64748b', lineHeight: 1.6 }}>
                     Executes hybrid transactional searches. Generates vector embeddings for user speech, matching them using cosine similarity in Cloud Spanner to recommend relevant products.
                   </Typography>
                 </Grid>
                 <Grid size={{ xs: 12, md: 4 }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: '750', color: '#10b981', mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <CheckCircleOutlined fontSize="small" /> Interruption-Resilient Design
+                  <Typography variant="subtitle1" sx={{ fontWeight: '750', color: '#0f172a', mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <CheckCircleOutlined fontSize="small" color="primary" /> Interruption-Resilient Design
                   </Typography>
-                  <Typography variant="body2" sx={{ color: '#94a3b8', lineHeight: 1.5 }}>
+                  <Typography variant="body2" sx={{ color: '#64748b', lineHeight: 1.6 }}>
                     Real-time voice processing downsamples mic streams and streams them upstream. Client-side VAD (Voice Activity Detection) guarantees swift interruption response.
                   </Typography>
                 </Grid>
@@ -336,7 +366,7 @@ export function ArchitecturePage({ navigate }: ArchitecturePageProps) {
         {/* Tab content 1: System Flow Sequence */}
         {activeTab === 1 && (
           <Box>
-            <Typography variant="subtitle1" sx={{ color: '#94a3b8', mb: 3, textAlign: 'center' }}>
+            <Typography variant="subtitle1" sx={{ color: '#64748b', mb: 3, textAlign: 'center' }}>
               Select a step in the sequence loop below to view components, code locations, and technical implementation details.
             </Typography>
 
@@ -346,12 +376,13 @@ export function ArchitecturePage({ navigate }: ArchitecturePageProps) {
               flexDirection: { xs: 'column', lg: 'row' }, 
               alignItems: 'center', 
               justifyContent: 'space-between', 
-              bgcolor: 'rgba(17, 24, 39, 0.6)', 
-              borderRadius: 6, 
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              p: 4, 
+              bgcolor: '#ffffff', 
+              borderRadius: 4, 
+              border: '1px solid #e2e8f0',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.02)',
+              p: 3.5, 
               mb: 4,
-              gap: 2.5
+              gap: 2
             }}>
               {flowSteps.map((step, idx) => (
                 <Box key={idx} sx={{ 
@@ -370,20 +401,21 @@ export function ArchitecturePage({ navigate }: ArchitecturePageProps) {
                       cursor: 'pointer',
                       flexGrow: 1,
                       textAlign: 'center',
-                      borderRadius: 4,
-                      border: '1px solid',
-                      borderColor: selectedFlowStep === idx ? '#6366f1' : 'rgba(255, 255, 255, 0.08)',
-                      bgcolor: selectedFlowStep === idx ? 'rgba(99, 102, 241, 0.15)' : 'rgba(15, 23, 42, 0.8)',
-                      color: '#ffffff',
-                      transition: 'all 0.3s ease',
+                      borderRadius: 3,
+                      border: '1.5px solid',
+                      borderColor: selectedFlowStep === idx ? 'primary.main' : '#e2e8f0',
+                      bgcolor: selectedFlowStep === idx ? '#f8fafc' : '#ffffff',
+                      color: '#0f172a',
+                      boxShadow: selectedFlowStep === idx ? '0 4px 12px rgba(0,0,0,0.06)' : 'none',
+                      transition: 'all 0.25s ease',
                       '&:hover': {
                         transform: 'translateY(-2px)',
-                        borderColor: '#a855f7',
-                        bgcolor: 'rgba(168, 85, 247, 0.1)'
+                        borderColor: 'primary.main',
+                        bgcolor: '#f8fafc'
                       }
                     }}
                   >
-                    <Typography variant="caption" sx={{ color: '#a855f7', fontWeight: '800', display: 'block', mb: 0.5 }}>
+                    <Typography variant="caption" sx={{ color: '#64748b', fontWeight: '800', display: 'block', mb: 0.5, textTransform: 'uppercase' }}>
                       {step.actor}
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: '750', fontSize: '0.85rem' }}>
@@ -397,12 +429,12 @@ export function ArchitecturePage({ navigate }: ArchitecturePageProps) {
                       display: 'flex', 
                       alignItems: 'center', 
                       justifyContent: 'center', 
-                      color: 'rgba(255, 255, 255, 0.15)',
+                      color: '#94a3b8',
                       py: { xs: 1, lg: 0 },
                       px: { xs: 0, lg: 1.5 },
                       transform: { xs: 'rotate(90deg)', lg: 'none' }
                     }}>
-                      <ArrowForward />
+                      <ArrowForward fontSize="small" />
                     </Box>
                   )}
                 </Box>
@@ -411,36 +443,36 @@ export function ArchitecturePage({ navigate }: ArchitecturePageProps) {
 
             {/* Selected Step Technical Details Drawer/Card */}
             {selectedFlowStep !== null ? (
-              <Card sx={{ bgcolor: 'rgba(15, 23, 42, 0.9)', border: '2px solid #6366f1', borderRadius: 5 }}>
+              <Card elevation={0} sx={{ bgcolor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 4, boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
                 <CardContent sx={{ p: 4 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="h6" sx={{ fontWeight: '850', color: '#ffffff', display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                      <Code color="secondary" />
+                    <Typography variant="h6" sx={{ fontWeight: '850', color: '#0f172a', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                      <Code color="primary" />
                       {flowSteps[selectedFlowStep].title} Details
                     </Typography>
-                    <Chip label={flowSteps[selectedFlowStep].actor} color="secondary" size="small" sx={{ fontWeight: '700' }} />
+                    <Chip label={flowSteps[selectedFlowStep].actor} size="small" sx={{ fontWeight: '700', bgcolor: '#f1f5f9', color: '#334155' }} />
                   </Box>
                   
-                  <Typography variant="body1" sx={{ color: '#e2e8f0', fontWeight: '600', mb: 2 }}>
+                  <Typography variant="body1" sx={{ color: '#334155', fontWeight: '600', mb: 2 }}>
                     "{flowSteps[selectedFlowStep].description}"
                   </Typography>
                   
-                  <Divider sx={{ borderColor: 'rgba(255,255,255,0.08)', my: 2 }} />
+                  <Divider sx={{ borderColor: '#f1f5f9', my: 2 }} />
                   
                   <Grid container spacing={3}>
                     <Grid size={{ xs: 12, md: 4 }}>
-                      <Typography variant="caption" color="textSecondary" sx={{ textTransform: 'uppercase', fontWeight: '800', color: '#94a3b8' }}>
+                      <Typography variant="caption" sx={{ textTransform: 'uppercase', fontWeight: '800', color: '#64748b' }}>
                         Code / Implementation File
                       </Typography>
-                      <Typography variant="body2" sx={{ fontFamily: 'monospace', bgcolor: 'rgba(0,0,0,0.3)', p: 1, borderRadius: 2, mt: 1, color: '#a855f7', wordBreak: 'break-all' }}>
+                      <Typography variant="body2" sx={{ fontFamily: 'monospace', bgcolor: '#0f172a', color: '#38bdf8', p: 1.5, borderRadius: 2, mt: 1, wordBreak: 'break-all', fontSize: '0.85rem' }}>
                         {flowSteps[selectedFlowStep].file}
                       </Typography>
                     </Grid>
                     <Grid size={{ xs: 12, md: 8 }}>
-                      <Typography variant="caption" color="textSecondary" sx={{ textTransform: 'uppercase', fontWeight: '800', color: '#94a3b8' }}>
+                      <Typography variant="caption" sx={{ textTransform: 'uppercase', fontWeight: '800', color: '#64748b' }}>
                         Under the Hood
                       </Typography>
-                      <Typography variant="body2" sx={{ color: '#94a3b8', lineHeight: 1.6, mt: 1 }}>
+                      <Typography variant="body2" sx={{ color: '#475569', lineHeight: 1.6, mt: 1 }}>
                         {flowSteps[selectedFlowStep].details}
                       </Typography>
                     </Grid>
@@ -448,7 +480,7 @@ export function ArchitecturePage({ navigate }: ArchitecturePageProps) {
                 </CardContent>
               </Card>
             ) : (
-              <Box sx={{ textAlign: 'center', p: 5, border: '2px dashed rgba(255,255,255,0.1)', borderRadius: 5 }}>
+              <Box sx={{ textAlign: 'center', p: 5, border: '2px dashed #cbd5e1', bgcolor: '#ffffff', borderRadius: 4 }}>
                 <Typography color="textSecondary">
                   Click on any step bubble above to explore step implementation details.
                 </Typography>
@@ -460,34 +492,34 @@ export function ArchitecturePage({ navigate }: ArchitecturePageProps) {
         {/* Tab content 2: Database schema DDL */}
         {activeTab === 2 && (
           <Box>
-            <Grid container spacing={4}>
+            <Grid container spacing={3}>
               <Grid size={{ xs: 12, md: 4 }}>
-                <Paper sx={{ p: 3, bgcolor: 'rgba(17, 24, 39, 0.6)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: 5, height: '100%' }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: '850', color: '#ffffff', mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Paper elevation={0} sx={{ p: 3, bgcolor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', height: '100%' }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: '850', color: '#0f172a', mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Storage color="primary" /> Cloud Spanner Table Select
                   </Typography>
                   <List sx={{ p: 0 }}>
                     {tables.map((tbl, idx) => (
                       <ListItemButton 
                         key={idx} 
-                        onClick={() => setSelectedFlowStep(idx)}
+                        onClick={() => setSelectedTable(idx)}
                         sx={{ 
-                          borderRadius: 3, 
+                          borderRadius: 2.5, 
                           mb: 1, 
-                          bgcolor: selectedFlowStep === idx ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
+                          bgcolor: selectedTable === idx ? '#f1f5f9' : 'transparent',
                           border: '1px solid',
-                          borderColor: selectedFlowStep === idx ? '#6366f1' : 'transparent',
-                          color: '#ffffff',
+                          borderColor: selectedTable === idx ? '#cbd5e1' : 'transparent',
+                          color: '#0f172a',
                           '&:hover': {
-                            bgcolor: 'rgba(255,255,255,0.02)'
+                            bgcolor: '#f8fafc'
                           }
                         }}
                       >
-                        <ListItemIcon sx={{ color: selectedFlowStep === idx ? '#a855f7' : '#94a3b8', minWidth: 36 }}>
+                        <ListItemIcon sx={{ color: selectedTable === idx ? 'primary.main' : '#64748b', minWidth: 36 }}>
                           <Schema fontSize="small" />
                         </ListItemIcon>
                         <ListItemText 
-                          primary={<Typography sx={{ fontWeight: '750', fontSize: '0.9rem' }}>{tbl.name}</Typography>} 
+                          primary={<Typography sx={{ fontWeight: selectedTable === idx ? '800' : '600', fontSize: '0.9rem' }}>{tbl.name}</Typography>} 
                         />
                       </ListItemButton>
                     ))}
@@ -496,55 +528,55 @@ export function ArchitecturePage({ navigate }: ArchitecturePageProps) {
               </Grid>
 
               <Grid size={{ xs: 12, md: 8 }}>
-                {selectedFlowStep !== null && selectedFlowStep < tables.length ? (
-                  <Paper sx={{ p: 4, bgcolor: 'rgba(17, 24, 39, 0.6)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: 5 }}>
+                {selectedTable !== null && selectedTable < tables.length ? (
+                  <Paper elevation={0} sx={{ p: 4, bgcolor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
                     <Box sx={{ mb: 2.5 }}>
-                      <Typography variant="h5" sx={{ fontWeight: '900', color: '#ffffff', mb: 1 }}>
-                        Table: {tables[selectedFlowStep].name}
+                      <Typography variant="h5" sx={{ fontWeight: '900', color: '#0f172a', mb: 1 }}>
+                        Table: {tables[selectedTable].name}
                       </Typography>
-                      <Typography variant="body2" sx={{ color: '#94a3b8', lineHeight: 1.5 }}>
-                        {tables[selectedFlowStep].description}
+                      <Typography variant="body2" sx={{ color: '#64748b', lineHeight: 1.5 }}>
+                        {tables[selectedTable].description}
                       </Typography>
                     </Box>
                     
-                    <TableContainer component={Box} sx={{ bgcolor: 'rgba(15, 23, 42, 0.5)', borderRadius: 3, border: '1px solid rgba(255,255,255,0.05)', mb: 3 }}>
+                    <TableContainer component={Box} sx={{ bgcolor: '#ffffff', borderRadius: 3, border: '1px solid #e2e8f0', mb: 3 }}>
                       <Table size="small">
-                        <TableHead sx={{ bgcolor: 'rgba(0,0,0,0.2)' }}>
+                        <TableHead sx={{ bgcolor: '#f8fafc' }}>
                           <TableRow>
-                            <TableCell sx={{ color: '#94a3b8', fontWeight: '800', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>Column Name</TableCell>
-                            <TableCell sx={{ color: '#94a3b8', fontWeight: '800', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>Type</TableCell>
-                            <TableCell sx={{ color: '#94a3b8', fontWeight: '800', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>Constraint</TableCell>
-                            <TableCell sx={{ color: '#94a3b8', fontWeight: '800', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>Description</TableCell>
+                            <TableCell sx={{ color: '#475569', fontWeight: '800', borderBottom: '1px solid #e2e8f0' }}>Column Name</TableCell>
+                            <TableCell sx={{ color: '#475569', fontWeight: '800', borderBottom: '1px solid #e2e8f0' }}>Type</TableCell>
+                            <TableCell sx={{ color: '#475569', fontWeight: '800', borderBottom: '1px solid #e2e8f0' }}>Constraint</TableCell>
+                            <TableCell sx={{ color: '#475569', fontWeight: '800', borderBottom: '1px solid #e2e8f0' }}>Description</TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {tables[selectedFlowStep].columns.map((col, idx) => (
-                            <TableRow key={idx} sx={{ '&:hover': { bgcolor: 'rgba(255,255,255,0.01)' } }}>
-                              <TableCell sx={{ color: '#e2e8f0', fontWeight: '750', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>{col.name}</TableCell>
-                              <TableCell sx={{ color: '#a855f7', fontFamily: 'monospace', fontSize: '0.8rem', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>{col.type}</TableCell>
-                              <TableCell sx={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                          {tables[selectedTable].columns.map((col, idx) => (
+                            <TableRow key={idx} sx={{ '&:hover': { bgcolor: 'rgba(0, 0, 0, 0.02)' } }}>
+                              <TableCell sx={{ color: '#0f172a', fontWeight: '750', borderBottom: '1px solid #f1f5f9' }}>{col.name}</TableCell>
+                              <TableCell sx={{ color: '#0284c7', fontFamily: 'monospace', fontSize: '0.8rem', borderBottom: '1px solid #f1f5f9' }}>{col.type}</TableCell>
+                              <TableCell sx={{ borderBottom: '1px solid #f1f5f9' }}>
                                 {col.key && <Chip label={col.key} size="small" color="primary" sx={{ fontSize: '0.68rem', height: 18, fontWeight: '700' }} />}
                               </TableCell>
-                              <TableCell sx={{ color: '#94a3b8', fontSize: '0.85rem', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>{col.desc}</TableCell>
+                              <TableCell sx={{ color: '#475569', fontSize: '0.85rem', borderBottom: '1px solid #f1f5f9' }}>{col.desc}</TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
                       </Table>
                     </TableContainer>
 
-                    {tables[selectedFlowStep].indexes && (
-                      <Box sx={{ p: 2, bgcolor: 'rgba(99, 102, 241, 0.08)', borderRadius: 3, border: '1px solid rgba(99, 102, 241, 0.2)' }}>
-                        <Typography variant="caption" sx={{ fontWeight: '800', color: '#818cf8', display: 'block', mb: 0.5, textTransform: 'uppercase' }}>
+                    {tables[selectedTable].indexes && (
+                      <Box sx={{ p: 2, bgcolor: '#f8fafc', borderRadius: 3, border: '1px solid #e2e8f0' }}>
+                        <Typography variant="caption" sx={{ fontWeight: '800', color: '#334155', display: 'block', mb: 0.5, textTransform: 'uppercase' }}>
                           Physical Relationship / Indexes
                         </Typography>
-                        <Typography variant="body2" sx={{ color: '#94a3b8' }}>
-                          {tables[selectedFlowStep].indexes}
+                        <Typography variant="body2" sx={{ color: '#64748b' }}>
+                          {tables[selectedTable].indexes}
                         </Typography>
                       </Box>
                     )}
                   </Paper>
                 ) : (
-                  <Box sx={{ textAlign: 'center', p: 6, border: '2px dashed rgba(255,255,255,0.1)', borderRadius: 5, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Box sx={{ textAlign: 'center', p: 6, border: '2px dashed #cbd5e1', bgcolor: '#ffffff', borderRadius: 4, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Typography color="textSecondary">
                       Select a database table from the list on the left to view structure detail.
                     </Typography>

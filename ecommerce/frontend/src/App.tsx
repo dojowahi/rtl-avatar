@@ -46,7 +46,6 @@ import {
   ShoppingCart, 
   PlayArrow, 
   Stop,
-  Settings,
   Videocam,
   VideocamOff,
   Schema,
@@ -538,15 +537,6 @@ function MainStorePage({
             Regenerating catalog database for "{progressStatus.message}"... 
             {progressStatus.current > 0 && ` Stage: ${progressStatus.stage.toUpperCase()} (${progressStatus.current}/${progressStatus.total})`}
           </Typography>
-          <Button 
-            size="small" 
-            variant="outlined" 
-            color="inherit" 
-            onClick={() => navigate('/admin')}
-            sx={{ py: 0, px: 1.5, textTransform: 'uppercase', fontSize: '10px', height: '22px' }}
-          >
-            Monitor Logs
-          </Button>
         </Box>
       )}
 
@@ -568,22 +558,6 @@ function MainStorePage({
           RETAIL ASSISTANT
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Button 
-            variant="outlined" 
-            size="small" 
-            startIcon={<Settings />} 
-            onClick={() => navigate('/admin')}
-            color="inherit"
-            sx={{ 
-              borderColor: 'rgba(0,0,0,0.12)', 
-              borderRadius: '20px', 
-              fontSize: '0.8rem',
-              px: 2,
-              '&:hover': { borderColor: 'primary.main', bgcolor: 'rgba(0,0,0,0.02)' } 
-            }}
-          >
-            Admin Control
-          </Button>
           <Button 
             variant="outlined" 
             size="small" 
